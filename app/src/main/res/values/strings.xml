@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">PURPLEBUNNYTEAM</string>
+    <string name="home">Home</string>
+    <string name="chat">Chat</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="search">Search</string>
+    <string name="settings">Settings</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="home_fragment">Home Fragment</string>
+    <string name="chat_fragment">Chat Fragment</string>
+    <string name="search_fragment">Search Fragment</string>
+    <string name="bookmark_fragment">Bookmark Fragment</string>
+    <string name="settings_fragment">Settings Fragment</string>
 </resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ic_search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search">
+    </item>
+    <item
+        android:id="@+id/ic_chat_bubble"
+        android:title="@string/chat"
+        android:icon="@drawable/ic_chat_bubble">
+    </item>
+    <item
+        android:id="@+id/ic_home"
+        android:title="@string/home"
+        android:icon="@drawable/ic_home">
+    </item>
+    <item
+        android:id="@+id/ic_bookmark"
+        android:title="@string/bookmark"
+        android:icon="@drawable/ic_bookmark">
+    </item>
+    <item
+        android:id="@+id/ic_settings"
+        android:title="@string/settings"
+        android:icon="@drawable/ic_settings">
+    </item>
+
+</menu>
