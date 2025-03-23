@@ -1,15 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".fragments.ChatFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageButton
+        android:id="@+id/avatarbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/avataricon"
+        android:src="@drawable/avatar" />
+
+    <ImageButton
+        android:id="@+id/themechangebtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="-55dp"
+        android:contentDescription="@string/themechangeicon"
+        android:src="@drawable/light_mode"
+        tools:ignore="ImageContrastCheck,TouchTargetSizeCheck" />
+
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/chat_fragment"
+        android:text="@string/put_fragment_in_center_to_display_conversations"
         android:gravity="center"/>
 
-</FrameLayout>
+</LinearLayout>

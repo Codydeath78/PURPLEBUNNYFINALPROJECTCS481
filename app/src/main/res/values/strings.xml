@@ -12,4 +12,14 @@
     <string name="search_fragment">Search Fragment</string>
     <string name="bookmark_fragment">Bookmark Fragment</string>
     <string name="settings_fragment">Settings Fragment</string>
+    <string name="annoucements">Annoucements:</string>
+    <string name="welcome_to_cozee">WELCOME TO COZEE</string>
+    <string name="official_logo">official logo</string>
+    <string name="themechangeicon">themechangeicon</string>
+    <string name="avataricon">avataricon</string>
+    <string name="put_fragment_in_center_to_display_conversations">Put recyclerview in center to display conversations.</string>
+    <string name="put_maps_api_in_center">Put maps API in center</string>
+    <string name="put_recyclerview_in_center_to_show_bookmarks">Put recyclerview in center to show bookmarks</string>
+    <string name="title">Title</string>
+    <string name="subtitle">Subtitle</string>
 </resources>

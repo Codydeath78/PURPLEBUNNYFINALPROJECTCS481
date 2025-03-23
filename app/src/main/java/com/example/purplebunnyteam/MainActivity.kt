@@ -24,10 +24,8 @@ class MainActivity : AppCompatActivity() {
         val chatFragment = ChatFragment()
         val settingsFragment = SettingsFragment()
         val bookmarkFragment = BookmarkFragment()
-
-
         changeFragment(homeFragment)
-
+        findViewById<BottomNavigationView>(R.id.bottom_nav).selectedItemId = R.id.ic_home
         findViewById<BottomNavigationView>(R.id.bottom_nav).setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.ic_home -> {
