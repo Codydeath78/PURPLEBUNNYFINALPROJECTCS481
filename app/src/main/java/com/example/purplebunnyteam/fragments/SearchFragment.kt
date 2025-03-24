@@ -49,7 +49,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
                 .title("CSUSM")
         )
         // Move the camera to the map coordinates and zoom in closer.
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CSUSM, 15f))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CSUSM, 10f))
         // Display traffic.
         mMap.isTrafficEnabled = true
         mMap.isBuildingsEnabled = true
@@ -93,19 +93,5 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
             }
         })
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
