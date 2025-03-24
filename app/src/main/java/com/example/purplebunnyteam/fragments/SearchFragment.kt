@@ -1,7 +1,6 @@
 package com.example.purplebunnyteam.fragments
-
-
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,34 +8,18 @@ import androidx.fragment.app.Fragment
 import com.example.purplebunnyteam.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SearchFragment : Fragment(), OnMapReadyCallback {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var mMap: GoogleMap
+    private val API_KEY = "AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +29,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         val view = inflater.inflate(R.layout.fragment_search, container, false)
 
         // Get the SupportMapFragment and request the map to load
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         return view
@@ -54,47 +37,75 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
 
     // Update the map configuration at runtime.
     override fun onMapReady(googleMap: GoogleMap) {
-        // Set the map coordinates to San Marcos, CA USA
-        val CSUSM = LatLng(33.1237, -117.1557)
+        mMap = googleMap
+        // Set the map coordinates to CSUSM
+        val CSUSM = LatLng(33.1284, -117.1592)
         // Set the map type to Hybrid.
-        googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+         // googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
         // Add a marker on the map coordinates.
-        googleMap.addMarker(
+        mMap.addMarker(
             MarkerOptions()
                 .position(CSUSM)
                 .title("CSUSM")
         )
         // Move the camera to the map coordinates and zoom in closer.
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(CSUSM))
-        googleMap.moveCamera(CameraUpdateFactory.zoomTo(0f))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CSUSM, 15f))
         // Display traffic.
-        googleMap.isTrafficEnabled = true
+        mMap.isTrafficEnabled = true
+        mMap.isBuildingsEnabled = true
+
+        // Fetch nearby coffee shops
+        getNearbyPlaces(CSUSM)
     }
 
+    private fun getNearbyPlaces(location: LatLng) {
+        val baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/"
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        val requestUrl = "$baseUrl?location=${location.latitude},${location.longitude}&radius=1500&type=cafe&key=$API_KEY"
+        Log.d("API_REQUEST", "Request URL: $requestUrl")
+        val service = retrofit.create(PlacesApiService::class.java)
+        val call = service.getNearbyPlaces(
+            "${location.latitude},${location.longitude}",
+            1500,  // Search radius in meters
+            "cafe", // Type of place
+            API_KEY
+        )
 
-
-
-
-
-
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SearchFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+        call.enqueue(object : Callback<PlacesResponse> {
+            override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
+                if (response.isSuccessful) {
+                    response.body()?.results?.forEach { place ->
+                        val latLng = LatLng(place.geometry.location.lat, place.geometry.location.lng)
+                        mMap.addMarker(
+                            MarkerOptions()
+                                .position(latLng)
+                                .title(place.name)
+                        )
+                    }
                 }
             }
+
+            override fun onFailure(call: Call<PlacesResponse>, t: Throwable) {
+                t.printStackTrace()
+            }
+        })
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
