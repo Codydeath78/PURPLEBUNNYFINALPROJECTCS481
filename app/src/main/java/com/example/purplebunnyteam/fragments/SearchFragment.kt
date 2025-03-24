@@ -1,11 +1,19 @@
 package com.example.purplebunnyteam.fragments
 
+
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.example.purplebunnyteam.R
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -17,7 +25,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [SearchFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SearchFragment : Fragment() {
+class SearchFragment : Fragment(), OnMapReadyCallback {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -35,8 +43,40 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+        val view = inflater.inflate(R.layout.fragment_search, container, false)
+
+        // Get the SupportMapFragment and request the map to load
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        return view
     }
+
+    // Update the map configuration at runtime.
+    override fun onMapReady(googleMap: GoogleMap) {
+        // Set the map coordinates to San Marcos, CA USA
+        val CSUSM = LatLng(33.1237, -117.1557)
+        // Set the map type to Hybrid.
+        googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+        // Add a marker on the map coordinates.
+        googleMap.addMarker(
+            MarkerOptions()
+                .position(CSUSM)
+                .title("CSUSM")
+        )
+        // Move the camera to the map coordinates and zoom in closer.
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(CSUSM))
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(0f))
+        // Display traffic.
+        googleMap.isTrafficEnabled = true
+    }
+
+
+
+
+
+
+
 
     companion object {
         /**
