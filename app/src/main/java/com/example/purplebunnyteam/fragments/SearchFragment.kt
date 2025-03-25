@@ -69,7 +69,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         val service = retrofit.create(PlacesApiService::class.java)
         val call = service.getNearbyPlaces(
             "${location.latitude},${location.longitude}",
-            1500,  // Search radius in meters
+            3000,  // Search radius in meters
             "cafe", // Type of place
             API_KEY
         )
