@@ -6,7 +6,9 @@ data class PlacesResponse(
 
 data class PlaceResult(
     val name: String,
-    val geometry: Geometry
+    val geometry: Geometry,
+    val vicinity: String,
+    val rating: Double?
 )
 
 data class Geometry(
