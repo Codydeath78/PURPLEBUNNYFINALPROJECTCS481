@@ -22,4 +22,5 @@
     <string name="put_recyclerview_in_center_to_show_bookmarks">Put recyclerview in center to show bookmarks</string>
     <string name="title">Title</string>
     <string name="subtitle">Subtitle</string>
+    <string name="photoofcoffeeshop">PhotoOfCoffeeShop</string>
 </resources>

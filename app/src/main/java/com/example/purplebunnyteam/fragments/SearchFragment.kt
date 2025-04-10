@@ -6,8 +6,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.Nullable
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.purplebunnyteam.CustomInfoWindowAdapter
 import com.example.purplebunnyteam.PlaceDetails
 import com.example.purplebunnyteam.R
@@ -29,7 +31,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private val API_KEY = "AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8"
     private val markerMap = mutableMapOf<String, Marker>() //stores Marker references instead of LatLg so we can show info
-
+    private val placeToMarkerMap = mutableMapOf<String, Marker>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,7 +55,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
          // googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
         // Add a marker on the map coordinates.
         //set custom info window
-        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater))
+        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap))
         val csusmMarker = mMap.addMarker(
             MarkerOptions()
                 .position(CSUSM)
@@ -62,7 +64,9 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         csusmMarker?.tag = PlaceDetails(
             name = "CSUSM",
             address = "333 S Twin Oaks Valley Rd, San Marcos, CA 92096",
-            rating = 5.0
+            rating = 5.0,
+            photoUrl = "https://www.csusm.edu/facultyopportunities/images/campus_drone.png",
+            placeId = "Null"
         )
         //markerMap["CSUSM"] = CSUSM
 
@@ -132,13 +136,29 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
             return BitmapDescriptorFactory.fromBitmap(resizedBitmap)
         }
 
+        fun buildPhotoUrl(photoReference: String, apiKey: String): String {
+            return "https://maps.googleapis.com/maps/api/place/photo" +
+                    "?maxwidth=400" +
+                    "&photoreference=$photoReference" +
+                    "&key=$apiKey"
+        }
+
+
+
+
         call.enqueue(object : Callback<PlacesResponse> {
             override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
                 if (response.isSuccessful) {
                     response.body()?.results?.forEach { place ->
                         val latLng = LatLng(place.geometry.location.lat, place.geometry.location.lng)
+                        val photoReference = place.photos?.getOrNull(0)?.photoReference
+                        val photoUrl = photoReference?.let { buildPhotoUrl(it, API_KEY) }
+
+                        val placeId = place.place_id ?: return@forEach
 
                         val placeDetails = PlaceDetails(
+                            placeId = placeId,
+                            photoUrl = photoUrl ?: "",
                             name = place.name ?: "No name",
                             address = place.vicinity ?: "No address available",
                             rating = place.rating ?: 0.0
@@ -148,16 +168,19 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
                             MarkerOptions()
                                 .position(latLng)
                                 .title(place.name)
-                                .icon(resizeMapIcon(R.drawable.coffee_cup, 100, 100)) // Custom size icon
+                                .icon(resizeMapIcon(R.drawable.coffee_cup, 100, 100))
                         )
 
                         marker?.tag = placeDetails
-                        // Store the marker reference instead of just the LatLng to show info
+
                         marker?.let {
                             markerMap[place.name ?: "Unknown"] = it
+                            placeToMarkerMap[placeId] = it
                         }
-
                     }
+
+
+
                 }
             }
 
