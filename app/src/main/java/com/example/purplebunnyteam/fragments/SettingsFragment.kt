@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.purplebunnyteam.SettingsAdapter
 import com.example.purplebunnyteam.SettingsItem
+import androidx.navigation.fragment.findNavController
 
 class SettingsFragment : Fragment() {
 
@@ -33,9 +34,28 @@ class SettingsFragment : Fragment() {
             SettingsItem("Log Out", "Log out of your existing account")
         )
 
-        settingsAdapter = SettingsAdapter(settingsList)
+        settingsAdapter = SettingsAdapter(settingsList) {
+            position -> handleItemClick(position)
+        }
         settingsRecyclerView.adapter = settingsAdapter
 
         return view
+    }
+
+    private fun handleItemClick(position: Int) {
+        val fragment = when (position) {
+            0 -> NotificationFragment()
+            1 -> AccountFragment()
+            2 -> LocationFragment()
+            3 -> DeleteAccountFragment()
+            4 -> LogOutFragment()
+            else -> null
+        }
+        fragment?.let {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fContainer, it)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }

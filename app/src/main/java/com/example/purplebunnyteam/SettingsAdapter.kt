@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class SettingsAdapter(private val settingsList: List<SettingsItem>) :
-    RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
+class SettingsAdapter(
+    private val settingsList: List<SettingsItem>,
+    private val onItemClick: (Int) -> Unit //This will pass the position or ID.
+) : RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>() {
 
     class SettingsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleTextView: TextView = view.findViewById(R.id.titleTextView)
@@ -24,6 +26,11 @@ class SettingsAdapter(private val settingsList: List<SettingsItem>) :
         val item = settingsList[position]
         holder.titleTextView.text = item.title
         holder.subTitleTextView.text = item.subtitle
+
+        //This will handle the item click.
+        holder.itemView.setOnClickListener {
+            onItemClick(position)
+        }
     }
 
     override fun getItemCount(): Int {

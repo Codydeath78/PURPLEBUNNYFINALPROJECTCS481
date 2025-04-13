@@ -23,4 +23,15 @@
     <string name="title">Title</string>
     <string name="subtitle">Subtitle</string>
     <string name="photoofcoffeeshop">PhotoOfCoffeeShop</string>
+    <string name="set_silent_period">Set Silent Period</string>
+    <string name="mute_notifications">Mute Notifications</string>
+    <string name="list_of_settings">list of settings</string>
+    <string name="enter_your_email">Enter your Email</string>
+    <string name="enter_your_password">Enter your Password</string>
+    <string name="are_you_sure_about_deleting_your_account_everything_will_be_erased_and_cannot_be_accessed_again">Are you sure about deleting your account? Everything will be erased and cannot be accessed again.</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="do_you_want_log_out_of_this_account">Do you want log out of this account?</string>
+    <string name="yes_dos">YES</string>
+    <string name="no_dos">NO</string>
 </resources>

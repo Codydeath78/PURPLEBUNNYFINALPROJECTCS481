@@ -1,8 +1,10 @@
 plugins {
-    alias(libs.plugins.android.application)
+    //alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     kotlin("kapt")
+    id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -15,6 +17,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,10 +50,16 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.material)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.glide)
     //implementation(libs.compiler)
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
+    //kapt("com.github.bumptech.glide:compiler:4.16.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }

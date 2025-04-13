@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".fragments.DeleteAccountFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="200dp"
+        android:text="@string/are_you_sure_about_deleting_your_account_everything_will_be_erased_and_cannot_be_accessed_again" />
+
+    <Button
+        android:id="@+id/yesbtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/yes" />
+
+    <Button
+        android:id="@+id/nobtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no" />
+
+</LinearLayout>

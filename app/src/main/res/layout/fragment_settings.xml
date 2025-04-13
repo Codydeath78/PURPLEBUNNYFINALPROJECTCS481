@@ -28,13 +28,13 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
+        android:contentDescription="@string/list_of_settings"
         android:id="@+id/settingsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:defaultNavHost="true"/>
 </LinearLayout>

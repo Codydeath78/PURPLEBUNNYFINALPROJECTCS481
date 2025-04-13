@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "750051884329",
+    "project_id": "purplebunny-9c0fd",
+    "storage_bucket": "purplebunny-9c0fd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750051884329:android:90526bc6798f14f6134b38",
+        "android_client_info": {
+          "package_name": "com.example.purplebunnyteam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ4UOIAlOr7P0sSjgV0QLQiikqLsISDRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
