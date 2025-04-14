@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,4 +63,7 @@ dependencies {
     //kapt("com.github.bumptech.glide:compiler:4.16.0")
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.libraries.places:places:4.2.0")
 }

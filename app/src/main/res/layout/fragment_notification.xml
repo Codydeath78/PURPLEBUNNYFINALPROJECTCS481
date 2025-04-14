@@ -1,26 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".fragments.NotificationFragment">
+    android:layout_height="match_parent">
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/switchMuteNotifications"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="@string/mute_notifications" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <Button
-        android:id="@+id/btnSetSilentPeriod"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/set_silent_period"
-        android:layout_marginTop="10dp" />
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchMuteNotifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mute Notifications" />
 
+        <TextView
+            android:id="@+id/textCurrentSilentPeriod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Silent Period: Not set"
+            android:layout_marginTop="12dp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnSetSilentPeriod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Silent Period"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notification Preferences:"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp" />
+
+        <CheckBox
+            android:id="@+id/checkboxPush"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Push Notifications" />
+
+        <CheckBox
+            android:id="@+id/checkboxSMS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMS Notifications" />
+
+        <CheckBox
+            android:id="@+id/checkboxEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email Notifications" />
+    </LinearLayout>
+</ScrollView>
+

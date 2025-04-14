@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.navigation.fragment.findNavController
 import com.example.purplebunnyteam.LoginActivity
 import com.example.purplebunnyteam.MainActivity
 import com.example.purplebunnyteam.R

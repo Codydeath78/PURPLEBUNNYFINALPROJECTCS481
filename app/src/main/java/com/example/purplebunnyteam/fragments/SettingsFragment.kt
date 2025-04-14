@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.purplebunnyteam.SettingsAdapter
 import com.example.purplebunnyteam.SettingsItem
-import androidx.navigation.fragment.findNavController
 
 class SettingsFragment : Fragment() {
 

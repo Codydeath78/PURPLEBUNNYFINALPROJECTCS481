@@ -1,16 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".fragments.AccountFragment">
+    android:padding="16dp">
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Account Fragment" />
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/imageProfile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/avatar"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnChangePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change Picture" />
+
+        <EditText
+            android:id="@+id/editUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Username"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/editPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="New Password"
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/editName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Name"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/editAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Address"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/editPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            android:inputType="phone"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/editBio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Bio (can include socials)"
+            android:minHeight="48dp" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Changes"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>

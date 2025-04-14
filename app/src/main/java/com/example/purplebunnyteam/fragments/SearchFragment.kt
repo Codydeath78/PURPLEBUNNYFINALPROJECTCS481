@@ -24,6 +24,9 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
+import android.content.res.Configuration
+import android.content.res.Resources
+import com.google.android.gms.maps.model.MapStyleOptions
 
 
 class SearchFragment : Fragment(), OnMapReadyCallback {
@@ -49,6 +52,8 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
     // Update the map configuration at runtime.
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        val isDarkMode = nightModeFlags == Configuration.UI_MODE_NIGHT_YES
         // Set the map coordinates to CSUSM
         val CSUSM = LatLng(33.1284, -117.1592)
         // Set the map type to Hybrid.
@@ -70,18 +75,57 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         )
         //markerMap["CSUSM"] = CSUSM
 
-        // Move the camera to the map coordinates and zoom in closer.
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(CSUSM, 10f))
-        // Display traffic.
+        val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
+        val locationDisabled = sharedPrefs.getBoolean("location_disabled", false)
+
+        val selectedLat = sharedPrefs.getFloat("lat", 0f).toDouble()
+        val selectedLng = sharedPrefs.getFloat("lng", 0f).toDouble()
+        val radiusKm = sharedPrefs.getInt("search_radius", 5)
+        val openNow = sharedPrefs.getBoolean("open_now", false)
+        val mapStylePref = sharedPrefs.getString("map_style", "Normal")
+
+        //This will determine base location.
+        val defaultLocation = LatLng(33.1284, -117.1592) // CSUSM
+        val selectedLocation = if (!locationDisabled && selectedLat != 0.0 && selectedLng != 0.0)
+            LatLng(selectedLat, selectedLng)
+        else defaultLocation
+
+
+        if (isDarkMode) {
+            try {
+                val success = mMap.setMapStyle( //THIS DOESN'T EVEN WORK!!!!!!!!!!!!!!!!
+                    MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style_dark)
+                )
+                if (!success) {
+                    Log.e("MapStyle", "Style parsing failed.")
+                }
+            } catch (e: Resources.NotFoundException) {
+                Log.e("MapStyle", "Can't find style. Error: ", e)
+            }
+        } else {
+            //This will apply user preference-based map style.
+            when (mapStylePref) {
+                "Hybrid" -> mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+                "Satellite" -> mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+                "Terrain" -> mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+                else -> mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+            }
+        }
+
+        //This will move the camera to the map coordinates and zoom in closer.
+        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLocation, 10f))
+        //This will display traffic.
         mMap.isTrafficEnabled = true
         mMap.isBuildingsEnabled = true
-        mMap.uiSettings.isZoomControlsEnabled = true //Enable zoom controls
-        mMap.uiSettings.isCompassEnabled = true      //Enable compass
-        mMap.uiSettings.isMyLocationButtonEnabled = true  //Enable current location button
-        mMap.uiSettings.isMapToolbarEnabled = true   //Enable map toolbar
+        mMap.uiSettings.isZoomControlsEnabled = true //This will enable zoom controls.
+        mMap.uiSettings.isCompassEnabled = true      //This will enable compass.
+        mMap.uiSettings.isMyLocationButtonEnabled = true  //This will enable current location button.
+        mMap.uiSettings.isMapToolbarEnabled = true   //This will enable map toolbar.
 
-        // Fetch nearby coffee shops
-        getNearbyPlaces(CSUSM)
+        //This will fetch nearby coffee shops.
+        getNearbyPlaces(CSUSM, radiusKm * 1000, openNow)
+        getNearbyPlaces(selectedLocation, radiusKm * 1000, openNow)
         setupSearchBar()
     }
 
@@ -113,22 +157,23 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun getNearbyPlaces(location: LatLng) {
+    private fun getNearbyPlaces(location: LatLng, radiusMeters: Int, openNow: Boolean) {
         val baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/"
         val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        val requestUrl = "$baseUrl?location=${location.latitude},${location.longitude}&radius=1500&type=cafe&key=$API_KEY"
-        Log.d("API_REQUEST", "Request URL: $requestUrl")
-        val service = retrofit.create(PlacesApiService::class.java)
-        val call = service.getNearbyPlaces(
-            "${location.latitude},${location.longitude}",
-            3000,  // Search radius in meters
-            "cafe", // Type of place
-            API_KEY
-        )
 
+        val service = retrofit.create(PlacesApiService::class.java)
+
+        val call = service.getNearbyPlaces(
+            location = "${location.latitude},${location.longitude}",
+            radius = radiusMeters,
+            type = "cafe",
+            apiKey = API_KEY,
+            openNow = if (openNow) "true" else null // only send param if true
+        )
+        ///////////////////////////////////////
 
         fun resizeMapIcon(iconResId: Int, width: Int, height: Int): BitmapDescriptor {
             val bitmap = BitmapFactory.decodeResource(resources, iconResId)
