@@ -197,13 +197,18 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
                     response.body()?.results?.forEach { place ->
                         val latLng = LatLng(place.geometry.location.lat, place.geometry.location.lng)
                         val photoReference = place.photos?.getOrNull(0)?.photoReference
-                        val photoUrl = photoReference?.let { buildPhotoUrl(it, API_KEY) }
+                        val photoUrl = photoReference?.let { buildPhotoUrl(it, API_KEY) } ?: ""
 
                         val placeId = place.place_id ?: return@forEach
 
+                        //This will preload image using Glide.
+                        Glide.with(requireContext())
+                            .load(photoUrl)
+                            .preload()
+
                         val placeDetails = PlaceDetails(
                             placeId = placeId,
-                            photoUrl = photoUrl ?: "",
+                            photoUrl = photoUrl,
                             name = place.name ?: "No name",
                             address = place.vicinity ?: "No address available",
                             rating = place.rating ?: 0.0

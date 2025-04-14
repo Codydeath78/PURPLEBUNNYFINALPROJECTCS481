@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.glide)
     //implementation(libs.compiler)
     //kapt("com.github.bumptech.glide:compiler:4.16.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
 
