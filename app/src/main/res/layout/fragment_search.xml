@@ -8,36 +8,19 @@
     android:orientation="vertical"
     tools:context=".fragments.SearchFragment">
 
-    <ImageButton
-        android:id="@+id/avatarbtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:contentDescription="@string/avataricon"
-        android:src="@drawable/avatar"
-        tools:ignore="ImageContrastCheck" />
-
-    <ImageButton
-        android:id="@+id/themechangebtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="-55dp"
-        android:contentDescription="@string/themechangeicon"
-        android:src="@drawable/light_mode"
-        tools:ignore="ImageContrastCheck,TouchTargetSizeCheck" />
-
     <androidx.appcompat.widget.SearchView
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:queryHint="Search for a coffee shop"/>
+        android:layout_margin="8dp"
+        android:queryHint="Search for a coffee shop" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         map:cameraTilt="30"
         map:uiCompass="true"
         map:uiRotateGestures="true"
@@ -45,7 +28,4 @@
         map:uiScrollGestures="true"
         map:uiTiltGestures="true"
         map:uiZoomControls="true" />
-
-
-
 </LinearLayout>

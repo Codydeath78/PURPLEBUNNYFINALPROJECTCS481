@@ -8,25 +8,6 @@
     android:orientation="vertical"
     tools:context=".fragments.SettingsFragment">
 
-    <ImageButton
-        android:id="@+id/avatarbtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:contentDescription="@string/avataricon"
-        android:src="@drawable/avatar" />
-
-    <ImageButton
-        android:id="@+id/themechangebtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="-55dp"
-        android:contentDescription="@string/themechangeicon"
-        android:src="@drawable/light_mode"
-        tools:ignore="ImageContrastCheck,TouchTargetSizeCheck" />
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:contentDescription="@string/list_of_settings"
         android:id="@+id/settingsRecyclerView"

@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:text="Show Only Open Shops" />
 
-        <TextView android:text="Coffee Shop Preferences"
+        <TextView android:text="Coffee Shop Preferences  -SUBJECT TO CHANGE, TBD"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"/>
         <CheckBox

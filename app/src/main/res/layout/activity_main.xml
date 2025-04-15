@@ -8,27 +8,24 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- This fragment container will now stretch dynamically -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fContainer"
-        android:layout_width="411dp"
-        android:layout_height="621dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Bottom nav sticks to bottom and stays wrap_content height -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
-        android:layout_width="411dp"
-        android:layout_height="110dp"
-        android:layout_marginTop="96dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fContainer"
-        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

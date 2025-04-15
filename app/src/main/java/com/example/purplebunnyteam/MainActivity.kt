@@ -7,6 +7,7 @@ import androidx.navigation.findNavController
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -20,8 +21,8 @@ import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
+        /////////////////////////////////
         //if (FirebaseAuth.getInstance().currentUser == null) {
             // Redirect to LoginActivity
             //val intent = Intent(this, LoginActivity::class.java)
@@ -30,7 +31,16 @@ class MainActivity : AppCompatActivity() {
             //finish()
             //return
         //}
+        ///////////////////////////// --finish later...
 
+        val prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val darkModeEnabled = prefs.getBoolean("dark_mode_enabled", false)
+        AppCompatDelegate.setDefaultNightMode(
+            if (darkModeEnabled) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 

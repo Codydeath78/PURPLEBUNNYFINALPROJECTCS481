@@ -26,7 +26,10 @@ import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.gms.maps.model.MapStyleOptions
+import androidx.core.content.edit
 
 
 class SearchFragment : Fragment(), OnMapReadyCallback {
@@ -42,6 +45,33 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_search, container, false)
         val searchView = view.findViewById<SearchView>(R.id.search_bar)
+        //val themeButton = view.findViewById<ImageButton>(R.id.themechangebtn)
+        //val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
+        //val darkModeEnabled = sharedPrefs.getBoolean("dark_mode_enabled", false)
+
+        // Set correct icon on startup
+        //themeButton.setImageResource(
+            //if (darkModeEnabled) R.drawable.dark_mode else R.drawable.light_mode
+        //)
+
+
+        //themeButton.setOnClickListener {
+            //val newDarkMode = !darkModeEnabled
+            //sharedPrefs.edit { putBoolean("dark_mode_enabled", newDarkMode) }
+
+            // Set appropriate mode
+            //val mode = if (newDarkMode) {
+                //AppCompatDelegate.MODE_NIGHT_YES
+            //} else {
+                //AppCompatDelegate.MODE_NIGHT_NO
+            //}
+
+            //AppCompatDelegate.setDefaultNightMode(mode)
+
+            // recreate the activity to apply theme.
+            //activity?.recreate()
+        //}
+
         // Get the SupportMapFragment and request the map to load
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)

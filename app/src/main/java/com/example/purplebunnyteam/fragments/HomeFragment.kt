@@ -5,7 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.purplebunnyteam.R
+import androidx.core.content.edit
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -35,7 +38,38 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view =  inflater.inflate(R.layout.fragment_home, container, false)
+
+        val themeButton = view.findViewById<ImageButton>(R.id.themechangebtn)
+        val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
+        val darkModeEnabled = sharedPrefs.getBoolean("dark_mode_enabled", false)
+
+        // Set correct icon on startup
+        themeButton.setImageResource(
+            if (darkModeEnabled) R.drawable.dark_mode else R.drawable.light_mode
+        )
+
+        themeButton.setOnClickListener {
+            val newDarkMode = !darkModeEnabled
+            sharedPrefs.edit { putBoolean("dark_mode_enabled", newDarkMode) }
+
+            // Set appropriate mode
+            val mode = if (newDarkMode) {
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+
+            AppCompatDelegate.setDefaultNightMode(mode)
+
+            //recreate the activity to apply theme
+            activity?.recreate()
+        }
+
+
+
+
+        return view
     }
 
     companion object {
