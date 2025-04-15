@@ -39,7 +39,7 @@ class NotificationFragment : Fragment() {
                 textSilentPeriod.text = "Silent Period: Not set"
             }
 
-            // Run again every 1 minute
+            //This will run again every 1 second.
             handler.postDelayed(this, 1 * 1000)
         }
     }
@@ -154,7 +154,7 @@ class NotificationFragment : Fragment() {
         return if (start < end) {
             currentMinutes > end || currentMinutes < start
         } else {
-            // Overnight period (e.g., 23:00 to 07:00)
+            // Example: Overnight period (e.g., 23:00 to 07:00)
             currentMinutes > end && currentMinutes < start
         }
     }

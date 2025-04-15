@@ -24,7 +24,6 @@ class LogOutFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        //return inflater.inflate(R.layout.fragment_log_out, container, false)
         val view = inflater.inflate(R.layout.fragment_log_out, container, false)
 
         yesButton = view.findViewById(R.id.button)
@@ -35,7 +34,7 @@ class LogOutFragment : Fragment() {
         }
 
         noButton.setOnClickListener {
-            // Redirect to MainActivity
+            //This will redirect to MainActivity.
             val intent = Intent(requireContext(), MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)

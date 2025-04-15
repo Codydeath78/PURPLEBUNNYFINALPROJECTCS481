@@ -36,20 +36,20 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private val API_KEY = "AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8"
-    private val markerMap = mutableMapOf<String, Marker>() //stores Marker references instead of LatLg so we can show info
+    private val markerMap = mutableMapOf<String, Marker>() //This will store Marker references instead of LatLg so we can show info.
     private val placeToMarkerMap = mutableMapOf<String, Marker>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        // This will inflate the layout for this fragment.
         val view = inflater.inflate(R.layout.fragment_search, container, false)
         val searchView = view.findViewById<SearchView>(R.id.search_bar)
         //val themeButton = view.findViewById<ImageButton>(R.id.themechangebtn)
         //val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
         //val darkModeEnabled = sharedPrefs.getBoolean("dark_mode_enabled", false)
 
-        // Set correct icon on startup
+        //This will set correct icon on startup.
         //themeButton.setImageResource(
             //if (darkModeEnabled) R.drawable.dark_mode else R.drawable.light_mode
         //)
@@ -72,24 +72,24 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
             //activity?.recreate()
         //}
 
-        // Get the SupportMapFragment and request the map to load
+        //This will get the SupportMapFragment and request the map to load.
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         return view
     }
 
-    // Update the map configuration at runtime.
+    //This will update the map configuration at runtime.
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val isDarkMode = nightModeFlags == Configuration.UI_MODE_NIGHT_YES
-        // Set the map coordinates to CSUSM
+        //This will set the map coordinates to CSUSM.
         val CSUSM = LatLng(33.1284, -117.1592)
-        // Set the map type to Hybrid.
+        //This will set the map type to Hybrid.
          // googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
-        // Add a marker on the map coordinates.
-        //set custom info window
+        //This will add a marker on the map coordinates.
+        //This will set custom info window.
         mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap))
         val csusmMarker = mMap.addMarker(
             MarkerOptions()
@@ -123,7 +123,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
 
         if (isDarkMode) {
             try {
-                val success = mMap.setMapStyle( //THIS DOESN'T EVEN WORK!!!!!!!!!!!!!!!!
+                val success = mMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style_dark)
                 )
                 if (!success) {
@@ -201,7 +201,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
             radius = radiusMeters,
             type = "cafe",
             apiKey = API_KEY,
-            openNow = if (openNow) "true" else null // only send param if true
+            openNow = if (openNow) "true" else null //This will only send param if true.
         )
         ///////////////////////////////////////
 

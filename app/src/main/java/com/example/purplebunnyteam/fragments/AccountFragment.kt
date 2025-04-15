@@ -91,7 +91,7 @@ class AccountFragment : Fragment() {
                         Glide.with(this).load(imageUrl).into(imageProfile)
                     }
 
-                    // Check email verification status
+                    //This will check email verification status.
                     val isVerified = auth.currentUser?.isEmailVerified == true
                     if (!isVerified) {
                         Toast.makeText(requireContext(), "Your email is not verified. Limited access.", Toast.LENGTH_LONG).show()
@@ -123,7 +123,7 @@ class AccountFragment : Fragment() {
         }
 
         userId?.let { uid ->
-            // Check for username uniqueness
+            //This will check for username uniqueness.
             db.collection("users").whereEqualTo("username", username).get().addOnSuccessListener { snapshot ->
                 val isUsernameTaken = snapshot.documents.any { it.id != uid }
                 if (isUsernameTaken) {
@@ -151,7 +151,7 @@ class AccountFragment : Fragment() {
                             }
                         }
 
-                        // Send email verification if not verified
+                        //This will send email verification if not verified.
                         if (auth.currentUser?.isEmailVerified == false) {
                             auth.currentUser?.sendEmailVerification()?.addOnSuccessListener {
                                 Toast.makeText(requireContext(), "Verification email sent.", Toast.LENGTH_SHORT).show()

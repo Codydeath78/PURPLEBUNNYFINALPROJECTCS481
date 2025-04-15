@@ -38,14 +38,13 @@ class DeleteAccountFragment : Fragment() {
         }
 
         noButton.setOnClickListener {
-            // Redirect to MainActivity
+            //This will redirect to MainActivity.
             val intent = Intent(requireContext(), MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             return@setOnClickListener
         }
         return view
-        //return inflater.inflate(R.layout.fragment_delete_account, container, false)
     }
 
     private fun showConfirmationDialog() {
@@ -98,7 +97,7 @@ class DeleteAccountFragment : Fragment() {
                 val credential = EmailAuthProvider.getCredential(email, password)
                 auth.currentUser?.reauthenticate(credential)?.addOnCompleteListener { authTask ->
                     if (authTask.isSuccessful) {
-                        deleteAccount() // Retry after successful re-auth
+                        deleteAccount() //This will retry after successful re-auth.
                     } else {
                         Toast.makeText(requireContext(), "Re-authentication failed.", Toast.LENGTH_LONG).show()
                     }

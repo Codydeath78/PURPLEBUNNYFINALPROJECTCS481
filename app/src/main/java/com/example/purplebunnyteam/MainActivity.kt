@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             //finish()
             //return
         //}
-        ///////////////////////////// --finish later...
+        ///////////////////////////// --I will finish later...
 
         val prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         val darkModeEnabled = prefs.getBoolean("dark_mode_enabled", false)

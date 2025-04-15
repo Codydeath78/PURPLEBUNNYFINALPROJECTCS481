@@ -37,14 +37,14 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        //This will inflate the layout for this fragment.
         val view =  inflater.inflate(R.layout.fragment_home, container, false)
 
         val themeButton = view.findViewById<ImageButton>(R.id.themechangebtn)
         val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
         val darkModeEnabled = sharedPrefs.getBoolean("dark_mode_enabled", false)
 
-        // Set correct icon on startup
+        //This will set correct icon on startup.
         themeButton.setImageResource(
             if (darkModeEnabled) R.drawable.dark_mode else R.drawable.light_mode
         )
@@ -53,7 +53,7 @@ class HomeFragment : Fragment() {
             val newDarkMode = !darkModeEnabled
             sharedPrefs.edit { putBoolean("dark_mode_enabled", newDarkMode) }
 
-            // Set appropriate mode
+            //This will set appropriate mode.
             val mode = if (newDarkMode) {
                 AppCompatDelegate.MODE_NIGHT_YES
             } else {
@@ -62,7 +62,7 @@ class HomeFragment : Fragment() {
 
             AppCompatDelegate.setDefaultNightMode(mode)
 
-            //recreate the activity to apply theme
+            //This will recreate the activity to apply theme.
             activity?.recreate()
         }
 

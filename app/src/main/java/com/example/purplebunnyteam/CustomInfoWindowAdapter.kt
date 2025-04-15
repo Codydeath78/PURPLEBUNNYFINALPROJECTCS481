@@ -35,7 +35,7 @@ class CustomInfoWindowAdapter(
         val place = marker.tag as? PlaceDetails ?: return null
         val cachedView = viewMap[place.placeId]
 
-        // Return cached view if image already loaded
+        //This will return cached view if image already loaded.
         if (cachedView != null && imageCache[place.placeId] != null) {
             return cachedView
         }
@@ -69,7 +69,7 @@ class CustomInfoWindowAdapter(
                     imageCache[place.placeId] = resource
                     image.setImageDrawable(resource)
 
-                    // Refresh marker
+                    //This will refresh the marker.
                     Handler(Looper.getMainLooper()).post {
                         marker.showInfoWindow()
                     }
@@ -83,7 +83,7 @@ class CustomInfoWindowAdapter(
         viewMap[place.placeId] = view
         return view
     }
-    companion object { //Helpful companion that I didn't need since Glide had a function to preload..
+    companion object { //This is a helpful companion that I didn't need since Glide had a function to preload...
         fun preloadImage(context: android.content.Context, place: PlaceDetails) {
             Glide.with(context)
                 .load(place.photoUrl)
@@ -92,12 +92,4 @@ class CustomInfoWindowAdapter(
                 .preload()
         }
     }
-
-
-
-
-
-
-
-
 }
