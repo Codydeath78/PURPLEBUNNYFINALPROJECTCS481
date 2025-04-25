@@ -43,7 +43,10 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     private val API_KEY = "AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8"
     private val markerMap = mutableMapOf<String, Marker>() //This will store Marker references instead of LatLg so we can show info.
     private val placeToMarkerMap = mutableMapOf<String, Marker>()
-    private var suppressMarkerClick = false
+    private var currentlySelectedMarker: Marker? = null
+    private var isSearchTriggered = false
+    private var currentBottomSheetDialog: BottomSheetDialog? = null
+    //private var suppressMarkerClick = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -192,18 +195,18 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         //mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap, this))
 
         mMap.setOnMarkerClickListener { marker ->
-            if (suppressMarkerClick) {
-                suppressMarkerClick = false //This will reset for next time
-                return@setOnMarkerClickListener true //This will consume event, don't show again
+            // If this was triggered by a search and it's the same marker, skip showing again
+            if (isSearchTriggered && marker == currentlySelectedMarker) {
+                isSearchTriggered = false // reset flag
+                return@setOnMarkerClickListener true // consume the event
             }
 
+            currentlySelectedMarker = marker
             val place = marker.tag as? PlaceDetails
-            if (place != null) {
-                showPlaceBottomSheet(place)
-                true // Consume the event
-            } else {
-                false // Default behavior
+            place?.let {
+                showPlaceBottomSheet(it)
             }
+            true
         }
 
 
@@ -240,7 +243,10 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
     //////////////does this bottomthing work?
     private fun showPlaceBottomSheet(place: PlaceDetails) {
+        currentBottomSheetDialog?.dismiss() // Dismiss existing one
+
         val dialog = BottomSheetDialog(requireContext())
+        currentBottomSheetDialog = dialog // Save reference
         val view = layoutInflater.inflate(R.layout.bottom_sheet_info, null)
 
         val title = view.findViewById<TextView>(R.id.info_title)
@@ -260,13 +266,11 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             .into(image)
 
         bookmarkBtn.setOnClickListener {
-            // Navigate to BookmarkFragment or handle bookmark logic
             dialog.dismiss()
             onBookmarkClicked(place)
         }
 
         chatBtn.setOnClickListener {
-            // Navigate to ChatFragment or reviews logic
             dialog.dismiss()
             onChatClicked(place)
         }
@@ -296,10 +300,13 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
         if (result != null) {
             val marker = result.value
-            suppressMarkerClick = true //This will prevent auto marker click
-            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
-            //marker.showInfoWindow() // Open the InfoWindow
+            currentlySelectedMarker = marker
+            isSearchTriggered = true
+            //suppressMarkerClick = true //This will prevent auto marker click
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
+
+            //marker.showInfoWindow() // Open the InfoWindow
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
             val placeDetails = marker.tag as? PlaceDetails
             placeDetails?.let {
                 showPlaceBottomSheet(it)
@@ -310,6 +317,10 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             Log.d("SEARCH", "No match found for: $query")
         }
     }
+
+
+
+
 
     private fun getNearbyPlaces(location: LatLng, radiusMeters: Int, openNow: Boolean) {
         val baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/"
