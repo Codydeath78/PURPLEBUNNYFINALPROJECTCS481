@@ -1,11 +1,13 @@
 package com.example.purplebunnyteam
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
@@ -18,7 +20,8 @@ import com.google.android.gms.maps.model.Marker
 
 class CustomInfoWindowAdapter(
     private val inflater: LayoutInflater,
-    private val markerMap: Map<String, Marker>
+    private val markerMap: Map<String, Marker>,
+    private val listener: InfoWindowButtonClickListener
 ) : GoogleMap.InfoWindowAdapter {
 
     private val viewMap = mutableMapOf<String, View?>()
@@ -45,6 +48,19 @@ class CustomInfoWindowAdapter(
         val address = view.findViewById<TextView>(R.id.info_address)
         val rating = view.findViewById<TextView>(R.id.info_rating)
         val image = view.findViewById<ImageView>(R.id.info_image)
+        val bookmark_btn = view.findViewById<Button>(R.id.bookmark_btn)
+        val chat_btn = view.findViewById<Button>(R.id.chat_btn)
+
+        bookmark_btn.setOnClickListener {
+            listener.onBookmarkClicked(place)
+        }
+
+        chat_btn.setOnClickListener {
+            listener.onChatClicked(place)
+        }
+
+
+
 
         title.text = place.name
         address.text = "Address: ${place.address}"

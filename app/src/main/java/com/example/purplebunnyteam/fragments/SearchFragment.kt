@@ -26,18 +26,24 @@ import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.gms.maps.model.MapStyleOptions
 import androidx.core.content.edit
+import com.example.purplebunnyteam.InfoWindowButtonClickListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 
-class SearchFragment : Fragment(), OnMapReadyCallback {
+class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickListener {
 
     private lateinit var mMap: GoogleMap
     private val API_KEY = "AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8"
     private val markerMap = mutableMapOf<String, Marker>() //This will store Marker references instead of LatLg so we can show info.
     private val placeToMarkerMap = mutableMapOf<String, Marker>()
+    private var suppressMarkerClick = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -79,6 +85,28 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         return view
     }
 
+    override fun onBookmarkClicked(place: PlaceDetails) {
+        val fragment = BookmarkFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onChatClicked(place: PlaceDetails) {
+        val fragment = ChatFragment()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+
+
+
+
+
+
     //This will update the map configuration at runtime.
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -90,12 +118,30 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
          // googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
         //This will add a marker on the map coordinates.
         //This will set custom info window.
-        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap))
+
+
+
+        //mMap.setOnMarkerClickListener { marker ->
+            //val place = marker.tag as? PlaceDetails
+            //if (place != null) {
+                //showPlaceBottomSheet(place)
+                //true // Consume the event
+            //} else {
+                //false // Default behavior
+            //}
+        //}
+
+
+        //mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap, this))
         val csusmMarker = mMap.addMarker(
             MarkerOptions()
                 .position(CSUSM)
                 .title("CSUSM")
         )
+
+
+
+
         csusmMarker?.tag = PlaceDetails(
             name = "CSUSM",
             address = "333 S Twin Oaks Valley Rd, San Marcos, CA 92096",
@@ -143,7 +189,24 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         }
 
         //This will move the camera to the map coordinates and zoom in closer.
-        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap))
+        //mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap, this))
+
+        mMap.setOnMarkerClickListener { marker ->
+            if (suppressMarkerClick) {
+                suppressMarkerClick = false //This will reset for next time
+                return@setOnMarkerClickListener true //This will consume event, don't show again
+            }
+
+            val place = marker.tag as? PlaceDetails
+            if (place != null) {
+                showPlaceBottomSheet(place)
+                true // Consume the event
+            } else {
+                false // Default behavior
+            }
+        }
+
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLocation, 10f))
         //This will display traffic.
         mMap.isTrafficEnabled = true
@@ -154,7 +217,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         mMap.uiSettings.isMapToolbarEnabled = true   //This will enable map toolbar.
 
         //This will fetch nearby coffee shops.
-        getNearbyPlaces(CSUSM, radiusKm * 1000, openNow)
+        //getNearbyPlaces(CSUSM, radiusKm * 1000, openNow)
         getNearbyPlaces(selectedLocation, radiusKm * 1000, openNow)
         setupSearchBar()
     }
@@ -174,13 +237,74 @@ class SearchFragment : Fragment(), OnMapReadyCallback {
         })
     }
 
+
+    //////////////does this bottomthing work?
+    private fun showPlaceBottomSheet(place: PlaceDetails) {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_info, null)
+
+        val title = view.findViewById<TextView>(R.id.info_title)
+        val address = view.findViewById<TextView>(R.id.info_address)
+        val rating = view.findViewById<TextView>(R.id.info_rating)
+        val image = view.findViewById<ImageView>(R.id.info_image)
+        val bookmarkBtn = view.findViewById<Button>(R.id.bookmark_btn)
+        val chatBtn = view.findViewById<Button>(R.id.chat_btn)
+
+        title.text = place.name
+        address.text = "Address: ${place.address}"
+        rating.text = "Rating: ${place.rating}"
+
+        Glide.with(requireContext())
+            .load(place.photoUrl)
+            .placeholder(R.drawable.ic_placeholder)
+            .into(image)
+
+        bookmarkBtn.setOnClickListener {
+            // Navigate to BookmarkFragment or handle bookmark logic
+            dialog.dismiss()
+            onBookmarkClicked(place)
+        }
+
+        chatBtn.setOnClickListener {
+            // Navigate to ChatFragment or reviews logic
+            dialog.dismiss()
+            onChatClicked(place)
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
+    }
+//////////////does this bottomthing work?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private fun searchForMarker(query: String) { //This searches for marker and moves camera if found.
         val result = markerMap.entries.find { it.key.contains(query, ignoreCase = true)}
 
         if (result != null) {
             val marker = result.value
+            suppressMarkerClick = true //This will prevent auto marker click
+            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
+            //marker.showInfoWindow() // Open the InfoWindow
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
-            marker.showInfoWindow() // Open the InfoWindow
+            val placeDetails = marker.tag as? PlaceDetails
+            placeDetails?.let {
+                showPlaceBottomSheet(it)
+            }
+
             Log.d("SEARCH", "Navigating to: ${result.key}")
         } else {
             Log.d("SEARCH", "No match found for: $query")

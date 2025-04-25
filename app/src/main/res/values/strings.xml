@@ -65,5 +65,11 @@
     <string name="google_maps_key">AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8</string> <!-- Replace with actual API key -->
     <string name="default_map_style">Standard</string>
     <string name="no_location_selected">No location selected</string>
+    <string name="this_is_the_bookmark_button">This is the bookmark button.</string>
+    <string name="this_is_the_chat_button">This is the Chat button.</string>
+    <string name="_2">Bookmark</string>
+    <string name="reviews">Reviews</string>
+    <string name="chat_feature">chat feature</string>
+    <string name="bookmark_feature">bookmark feature</string>
 
 </resources>

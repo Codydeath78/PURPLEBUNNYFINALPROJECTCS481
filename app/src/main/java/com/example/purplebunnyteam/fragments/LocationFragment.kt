@@ -213,7 +213,7 @@ class LocationFragment : Fragment() {
                     Toast.makeText(requireContext(), R.string.unable_to_get_location, Toast.LENGTH_SHORT).show()
                 }
             }
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             Toast.makeText(requireContext(), R.string.permission_denied, Toast.LENGTH_SHORT).show()
         }
     }
