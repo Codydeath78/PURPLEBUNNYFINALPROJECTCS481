@@ -26,6 +26,9 @@ import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.os.Handler
+import android.os.Looper
+import android.view.animation.BounceInterpolator
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -34,6 +37,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.gms.maps.model.MapStyleOptions
 import androidx.core.content.edit
 import com.example.purplebunnyteam.InfoWindowButtonClickListener
+import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 
@@ -46,6 +50,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     private var currentlySelectedMarker: Marker? = null
     private var isSearchTriggered = false
     private var currentBottomSheetDialog: BottomSheetDialog? = null
+    private var isBouncing = false
     //private var suppressMarkerClick = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -275,21 +280,97 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             onChatClicked(place)
         }
 
+        currentlySelectedMarker?.let {
+            stopBouncingMarker(it)
+        }
+        currentlySelectedMarker = placeToMarkerMap[place.placeId]
+        currentlySelectedMarker?.let { startBouncingMarker(it) }
+
         dialog.setContentView(view)
+
+        dialog.setOnDismissListener {
+            currentlySelectedMarker?.let { stopBouncingMarker(it) }
+        }
+
+
+
         dialog.show()
     }
 //////////////does this bottomthing work?
 
 
+    private fun startBouncingMarker(marker: Marker) {
+        isBouncing = true
+        val handler = Handler(Looper.getMainLooper())
+        val duration = 1200L
+        val interpolator = BounceInterpolator()
+
+        fun animateBounce() {
+            val start = System.currentTimeMillis()
+
+            handler.post(object : Runnable {
+                override fun run() {
+                    if (!isBouncing) {
+                        marker.setAnchor(0.5f, 1f) // reset if bounce stopped
+                        return
+                    }
+
+                    val elapsed = System.currentTimeMillis() - start
+                    val t = (elapsed.toFloat() / duration).coerceAtMost(1f)
+                    val bounce = 1 - interpolator.getInterpolation(t)
+
+                    marker.setAnchor(0.5f, 1f + 0.9f * bounce)
+
+                    if (t < 1f) {
+                        handler.postDelayed(this, 16)
+                    } else {
+                        handler.postDelayed({ animateBounce() }, 200) // small pause between bounces
+                    }
+                }
+            })
+        }
+
+        animateBounce()
+    }
+
+    private fun stopBouncingMarker(marker: Marker) {
+        isBouncing = false
+        marker.setAnchor(0.5f, 1f) // Reset bounce anchor
+    }
 
 
+    private fun addRippleEffect(latLng: LatLng) {
+        val circle = mMap.addGroundOverlay(
+            GroundOverlayOptions()
+                .position(latLng, 100f) // Size in meters
+                .transparency(0.5f)
+                .image(BitmapDescriptorFactory.fromResource(R.drawable.ripple_circle))
+                .zIndex(1f)
+        )
 
+        val handler = Handler(Looper.getMainLooper())
+        val start = System.currentTimeMillis()
+        val duration = 1200L // in ms
 
+        handler.post(object : Runnable {
+            override fun run() {
+                val elapsed = System.currentTimeMillis() - start
+                val progress = elapsed.toFloat() / duration
 
+                if (progress > 1f) {
+                    circle?.remove()
+                    return
+                }
 
+                // Expand and fade out
+                val size = 100 + 200 * progress
+                circle?.setDimensions(size.toFloat())
+                circle?.transparency = 0.5f + 0.5f * progress
 
-
-
+                handler.postDelayed(this, 16)
+            }
+        })
+    }
 
 
 
@@ -297,13 +378,21 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
     private fun searchForMarker(query: String) { //This searches for marker and moves camera if found.
         val result = markerMap.entries.find { it.key.contains(query, ignoreCase = true)}
-
         if (result != null) {
             val marker = result.value
-            currentlySelectedMarker = marker
-            isSearchTriggered = true
-            //suppressMarkerClick = true //This will prevent auto marker click
+
+            // Stop previous bounce
+            //currentlySelectedMarker?.let { stopBouncingMarker(it) }
+
+            //currentlySelectedMarker = marker
+            //isSearchTriggered = true
+
+            //startBouncingMarker(marker)
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
+
+            //startBouncingMarker(marker)
+            addRippleEffect(marker.position)
+
 
             //marker.showInfoWindow() // Open the InfoWindow
             //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 18f))
