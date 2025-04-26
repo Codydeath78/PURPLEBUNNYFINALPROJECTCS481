@@ -6,11 +6,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.Nullable
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.example.purplebunnyteam.CustomInfoWindowAdapter
 import com.example.purplebunnyteam.PlaceDetails
 import com.example.purplebunnyteam.R
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -30,12 +28,9 @@ import android.os.Handler
 import android.os.Looper
 import android.view.animation.BounceInterpolator
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.gms.maps.model.MapStyleOptions
-import androidx.core.content.edit
 import com.example.purplebunnyteam.InfoWindowButtonClickListener
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -51,6 +46,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     private var isSearchTriggered = false
     private var currentBottomSheetDialog: BottomSheetDialog? = null
     private var isBouncing = false
+    private var currentBouncingMarker: Marker? = null
     //private var suppressMarkerClick = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -94,6 +90,8 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     }
 
     override fun onBookmarkClicked(place: PlaceDetails) {
+        currentlySelectedMarker?.let { stopBouncingMarker(it) }
+        currentlySelectedMarker = null
         val fragment = BookmarkFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fContainer, fragment)
@@ -102,6 +100,8 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     }
 
     override fun onChatClicked(place: PlaceDetails) {
+        currentlySelectedMarker?.let { stopBouncingMarker(it) }
+        currentlySelectedMarker = null
         val fragment = ChatFragment()
         parentFragmentManager.beginTransaction()
             .replace(R.id.fContainer, fragment)
@@ -280,10 +280,16 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             onChatClicked(place)
         }
 
+        //This will stop bouncing the previous selected marker if any
         currentlySelectedMarker?.let {
             stopBouncingMarker(it)
         }
+        //This will get the marker associated with this place
         currentlySelectedMarker = placeToMarkerMap[place.placeId]
+        Log.d("BOUNCE", "Trying to bounce marker for placeId: ${place.placeId}")
+        if (currentlySelectedMarker == null) {
+            Log.w("BOUNCE", "No marker found for this placeId. Skipping bounce.")
+        }
         currentlySelectedMarker?.let { startBouncingMarker(it) }
 
         dialog.setContentView(view)
@@ -300,18 +306,37 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
 
     private fun startBouncingMarker(marker: Marker) {
+        if (marker == currentBouncingMarker) {
+            Log.d("BOUNCE", "Bounce already active for marker: ${marker.title}")
+            return // prevent double trigger
+        }
+
+        stopBouncingMarker(currentBouncingMarker) // stop previous one if any
+
+        currentBouncingMarker = marker
+
+
+
+
+
+
+
+        /////////////////////////////////////////////////
         isBouncing = true
         val handler = Handler(Looper.getMainLooper())
         val duration = 1200L
         val interpolator = BounceInterpolator()
+
+        Log.d("BOUNCE", "Starting bounce animation for marker: ${marker.title}")
 
         fun animateBounce() {
             val start = System.currentTimeMillis()
 
             handler.post(object : Runnable {
                 override fun run() {
-                    if (!isBouncing) {
-                        marker.setAnchor(0.5f, 1f) // reset if bounce stopped
+                    if (!isBouncing || marker != currentBouncingMarker) {
+                        Log.d("BOUNCE", "Bounce cancelled or switched.")
+                        marker.setAnchor(0.5f, 1f)
                         return
                     }
 
@@ -319,7 +344,12 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                     val t = (elapsed.toFloat() / duration).coerceAtMost(1f)
                     val bounce = 1 - interpolator.getInterpolation(t)
 
-                    marker.setAnchor(0.5f, 1f + 0.9f * bounce)
+                    //marker.setAnchor(0.5f, 1f + 0.9f * bounce)
+                    try {
+                        marker.setAnchor(0.5f, 1f + 0.9f * bounce)
+                    } catch (e: Exception) {
+                        Log.e("BOUNCE", "Error setting anchor: ${e.message}")
+                    }
 
                     if (t < 1f) {
                         handler.postDelayed(this, 16)
@@ -333,9 +363,19 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         animateBounce()
     }
 
-    private fun stopBouncingMarker(marker: Marker) {
+    private fun stopBouncingMarker(marker: Marker?) {
+        //isBouncing = false
+        //marker?.setAnchor(0.5f, 1f) // Reset bounce anchor
+        if (marker == null || marker != currentBouncingMarker) return
+
+        Log.d("BOUNCE", "Stopping bounce for marker: ${marker.title}")
         isBouncing = false
-        marker.setAnchor(0.5f, 1f) // Reset bounce anchor
+        try {
+            marker.setAnchor(0.5f, 1f)
+        } catch (e: Exception) {
+            Log.e("BOUNCE", "Error resetting anchor: ${e.message}")
+        }
+        currentBouncingMarker = null
     }
 
 
@@ -460,36 +500,62 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                             .load(photoUrl)
                             .preload()
 
-                        val placeDetails = PlaceDetails(
-                            placeId = placeId,
-                            photoUrl = photoUrl,
-                            name = place.name ?: "No name",
-                            address = place.vicinity ?: "No address available",
-                            rating = place.rating ?: 0.0
-                        )
 
-                        val marker = mMap.addMarker(
-                            MarkerOptions()
-                                .position(latLng)
-                                .title(place.name)
-                                .icon(resizeMapIcon(R.drawable.coffee_cup, 100, 100))
-                        )
+                        // Check if marker already exists
+                        val existingMarker = placeToMarkerMap[placeId]
+                        if (existingMarker == null) {
+                            // No existing marker, create one
+                            val marker = mMap.addMarker(
+                                MarkerOptions()
+                                    .position(latLng)
+                                    .title(place.name)
+                                    .icon(resizeMapIcon(R.drawable.coffee_cup, 100, 100))
+                            )
 
-                        marker?.tag = placeDetails
+                            marker?.let {
+                                it.tag = PlaceDetails(
+                                    name = place.name ?: "No name",
+                                    address = place.vicinity ?: "No address available",
+                                    rating = place.rating ?: 0.0,
+                                    photoUrl = photoUrl,
+                                    placeId = placeId
+                                )
+                                markerMap[place.name ?: "Unknown"] = it
+                                placeToMarkerMap[placeId] = it
+                            }
+                        } else {
+                            // Marker already exists, optionally update position/title if needed
+                            existingMarker.position = latLng
+                            existingMarker.title = place.name
+                        ///////////////old code below caused ghost coffee shop icon////////////////
+                        //val placeDetails = PlaceDetails(
+                            //placeId = placeId,
+                            //photoUrl = photoUrl,
+                            //name = place.name ?: "No name",
+                            //address = place.vicinity ?: "No address available",
+                            //rating = place.rating ?: 0.0
+                        //)
 
-                        marker?.let {
-                            markerMap[place.name ?: "Unknown"] = it
-                            placeToMarkerMap[placeId] = it
+                        //val marker = mMap.addMarker(
+                            //MarkerOptions()
+                                //.position(latLng)
+                                //.title(place.name)
+                                //.icon(resizeMapIcon(R.drawable.coffee_cup, 100, 100))
+                        //)
+
+                        //marker?.tag = placeDetails
+
+                        //marker?.let {
+                            //markerMap[place.name ?: "Unknown"] = it
+                            //placeToMarkerMap[placeId] = it
                         }
                     }
-
-
-
                 }
             }
 
             override fun onFailure(call: Call<PlacesResponse>, t: Throwable) {
                 t.printStackTrace()
+                Log.e("NearbyPlaces", "API call failed: ${t.localizedMessage}")
             }
         })
     }
