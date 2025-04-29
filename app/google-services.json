@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "750051884329",
-    "project_id": "purplebunny-9c0fd",
-    "storage_bucket": "purplebunny-9c0fd.firebasestorage.app"
+    "project_number": "510993790628",
+    "project_id": "cozee-cs481",
+    "storage_bucket": "cozee-cs481.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:750051884329:android:90526bc6798f14f6134b38",
+        "mobilesdk_app_id": "1:510993790628:android:2d235b59759e6ce0c2d831",
         "android_client_info": {
           "package_name": "com.example.purplebunnyteam"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAJ4UOIAlOr7P0sSjgV0QLQiikqLsISDRM"
+          "current_key": "AIzaSyDn4L_JaoLLxhhHaHcyd14uOJLRNzMIx4A"
         }
       ],
       "services": {
