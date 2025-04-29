@@ -57,32 +57,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         // This will inflate the layout for this fragment.
         val view = inflater.inflate(R.layout.fragment_search, container, false)
         val searchView = view.findViewById<SearchView>(R.id.search_bar)
-        //val themeButton = view.findViewById<ImageButton>(R.id.themechangebtn)
-        //val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
-        //val darkModeEnabled = sharedPrefs.getBoolean("dark_mode_enabled", false)
-
-        //This will set correct icon on startup.
-        //themeButton.setImageResource(
-            //if (darkModeEnabled) R.drawable.dark_mode else R.drawable.light_mode
-        //)
-
-
-        //themeButton.setOnClickListener {
-            //val newDarkMode = !darkModeEnabled
-            //sharedPrefs.edit { putBoolean("dark_mode_enabled", newDarkMode) }
-
-            // Set appropriate mode
-            //val mode = if (newDarkMode) {
-                //AppCompatDelegate.MODE_NIGHT_YES
-            //} else {
-                //AppCompatDelegate.MODE_NIGHT_NO
-            //}
-
-            //AppCompatDelegate.setDefaultNightMode(mode)
-
-            // recreate the activity to apply theme.
-            //activity?.recreate()
-        //}
 
         //This will get the SupportMapFragment and request the map to load.
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -117,12 +91,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             .addToBackStack(null)
             .commit()
     }
-
-
-
-
-
-
 
     //This will update the map configuration at runtime.
     override fun onMapReady(googleMap: GoogleMap) {
@@ -166,7 +134,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             photoUrl = "https://www.csusm.edu/facultyopportunities/images/campus_drone.png",
             placeId = "Null"
         )
-        //markerMap["CSUSM"] = CSUSM
 
         val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
         val locationDisabled = sharedPrefs.getBoolean("location_disabled", false)
@@ -279,10 +246,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         address.setTextColor(textColor)
         rating.setTextColor(textColor)
 
-
-
-
-
         title.text = place.name
         address.text = "Address: ${place.address}"
         rating.text = "Rating: ${place.rating}"
@@ -325,8 +288,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         dialog.show()
     }
 //////////////does this bottomthing work?
-
-
     private fun startBouncingMarker(marker: Marker) {
         if (marker == currentBouncingMarker) {
             Log.d("BOUNCE", "Bounce already active for marker: ${marker.title}")
@@ -336,13 +297,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         stopBouncingMarker(currentBouncingMarker) // stop previous one if any
 
         currentBouncingMarker = marker
-
-
-
-
-
-
-
         /////////////////////////////////////////////////
         isBouncing = true
         val handler = Handler(Looper.getMainLooper())
@@ -376,7 +330,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                     if (t < 1f) {
                         handler.postDelayed(this, 16)
                     } else {
-                        handler.postDelayed({ animateBounce() }, 200) // small pause between bounces
+                        handler.postDelayed({ animateBounce() }, 200) //This does small pause between bounces
                     }
                 }
             })
@@ -411,10 +365,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         }
 
 
-
-
-
-
         val circle = mMap.addGroundOverlay(
             GroundOverlayOptions()
                 .position(latLng, 100f) // Size in meters
@@ -438,7 +388,7 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                     return
                 }
 
-                // Expand and fade out
+                //This will expand and fade out
                 val size = 100 + 200 * progress
                 circle?.setDimensions(size.toFloat())
                 circle?.transparency = 0.5f + 0.5f * progress
