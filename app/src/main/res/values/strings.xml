@@ -71,5 +71,12 @@
     <string name="reviews">Reviews</string>
     <string name="chat_feature">chat feature</string>
     <string name="bookmark_feature">bookmark feature</string>
+    <string name="cozee_logo">Cozee Logo</string>
+    <string name="enter_username">Enter Username</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="login">Login</string>
+    <string name="signup">Signup</string>
+    <string name="create_account">Create Account</string>
+    <string name="confirm_your_password">Confirm Your Password</string>
 
 </resources>
