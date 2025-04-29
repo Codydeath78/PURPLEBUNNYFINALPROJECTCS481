@@ -36,6 +36,8 @@ import com.example.purplebunnyteam.InfoWindowButtonClickListener
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.graphics.Color
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 
 
 class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickListener {
@@ -480,6 +482,27 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                         val photoUrl = photoReference?.let { buildPhotoUrl(it, API_KEY) } ?: ""
 
                         val placeId = place.place_id ?: return@forEach
+
+                        //Firestore sync starting here
+                        val db = FirebaseFirestore.getInstance()
+                        val cafeRef = db.collection("cafes").document(placeId)
+
+                        cafeRef.get().addOnSuccessListener { doc ->
+                            if (!doc.exists()) {
+                                val newCafe = hashMapOf(
+                                    "name" to place.name,
+                                    "address" to place.vicinity,
+                                    "lat" to place.geometry.location.lat,
+                                    "lng" to place.geometry.location.lng,
+                                    "googleRating" to place.rating,
+                                    "placeId" to placeId,
+                                    "createdAt" to Timestamp.now(),
+                                    "addedByUser" to false
+                                )
+                                cafeRef.set(newCafe)
+                            }
+                        }
+                        // Firestore sync ends here
 
                         //This will preload image using Glide.
                         Glide.with(requireContext())
