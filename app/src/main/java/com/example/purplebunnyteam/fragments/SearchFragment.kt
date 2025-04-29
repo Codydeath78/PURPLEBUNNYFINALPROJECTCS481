@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.example.purplebunnyteam.InfoWindowButtonClickListener
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import android.graphics.Color
 
 
 class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickListener {
@@ -269,6 +270,19 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         val bookmarkBtn = view.findViewById<Button>(R.id.bookmark_btn)
         val chatBtn = view.findViewById<Button>(R.id.chat_btn)
 
+
+        //This will detect dark mode and set text color
+        val isDarkTheme = (resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val textColor = if (isDarkTheme) Color.WHITE else Color.BLACK
+        title.setTextColor(textColor)
+        address.setTextColor(textColor)
+        rating.setTextColor(textColor)
+
+
+
+
+
         title.text = place.name
         address.text = "Address: ${place.address}"
         rating.text = "Rating: ${place.rating}"
@@ -388,13 +402,27 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
 
     private fun addRippleEffect(latLng: LatLng) {
+
+        val nightModeFlags = requireContext().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+
+        val rippleResource = when (nightModeFlags) {
+            Configuration.UI_MODE_NIGHT_YES -> R.drawable.white_ripple_circle // for dark mode
+            else -> R.drawable.black_ripple_circle // for light mode
+        }
+
+
+
+
+
+
         val circle = mMap.addGroundOverlay(
             GroundOverlayOptions()
                 .position(latLng, 100f) // Size in meters
                 .transparency(0.5f)
-                .image(BitmapDescriptorFactory.fromResource(R.drawable.ripple_circle))
+                .image(BitmapDescriptorFactory.fromResource(rippleResource))
                 .zIndex(1f)
         )
+
 
         val handler = Handler(Looper.getMainLooper())
         val start = System.currentTimeMillis()

@@ -1,5 +1,8 @@
 package com.example.purplebunnyteam.fragments
 
+import android.R.attr.textColor
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -32,8 +35,12 @@ class SettingsFragment : Fragment() {
             SettingsItem("Delete Account", "Delete your existing account"),
             SettingsItem("Log Out", "Log out of your existing account")
         )
+        val isDarkTheme = (resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val textColor = if (isDarkTheme) Color.WHITE else Color.BLACK
 
-        settingsAdapter = SettingsAdapter(settingsList) {
+
+        settingsAdapter = SettingsAdapter(settingsList, textColor) {
             position -> handleItemClick(position)
         }
         settingsRecyclerView.adapter = settingsAdapter
