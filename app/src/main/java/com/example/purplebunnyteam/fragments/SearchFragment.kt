@@ -30,6 +30,7 @@ import android.view.animation.BounceInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import com.example.purplebunnyteam.ChatFragment
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.example.purplebunnyteam.InfoWindowButtonClickListener
 import com.google.android.gms.maps.model.GroundOverlayOptions
@@ -102,7 +103,14 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     override fun onChatClicked(place: PlaceDetails) {
         currentlySelectedMarker?.let { stopBouncingMarker(it) }
         currentlySelectedMarker = null
-        val fragment = ChatFragment()
+
+        val fragment = ChatFragment().apply {
+            arguments = Bundle().apply {
+                putString("cafeId", place.placeId)
+                putString("cafeName", place.name)
+                putString("cafeImageUrl",place.photoUrl)
+            }
+        }
         parentFragmentManager.beginTransaction()
             .replace(R.id.fContainer, fragment)
             .addToBackStack(null)

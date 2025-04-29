@@ -11,11 +11,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.purplebunnyteam.fragments.BookmarkFragment
-import com.example.purplebunnyteam.fragments.ChatFragment
-import com.example.purplebunnyteam.fragments.HomeFragment
-import com.example.purplebunnyteam.fragments.SearchFragment
-import com.example.purplebunnyteam.fragments.SettingsFragment
+import com.example.purplebunnyteam.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 

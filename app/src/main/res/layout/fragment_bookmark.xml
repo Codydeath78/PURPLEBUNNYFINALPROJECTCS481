@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragments.BookmarkFragment">
+    android:padding="16dp">
 
     <TextView
+        android:id="@+id/tvEmptyState"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/put_recyclerview_in_center_to_show_bookmarks"
-        android:gravity="center"/>
+        android:text="No bookmarked cafes yet"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBookmarks"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"/>
 
 </LinearLayout>
