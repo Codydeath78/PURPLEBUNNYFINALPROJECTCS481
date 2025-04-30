@@ -50,8 +50,18 @@ class LogOutFragment : Fragment() {
             .setMessage("Are you sure you want to log out of your account?")
             .setPositiveButton("Yes") { _, _ ->
                 //auth.signOut()
-                FirebaseAuth.getInstance().signOut()
-                showSuccessDialog()
+                //FirebaseAuth.getInstance().signOut()
+                //showSuccessDialog()
+                val user = auth.currentUser
+                if (user != null)
+                {
+                    auth.signOut()
+                    showSuccessDialog()
+                }
+                else
+                {
+                    showNotLoggedInDialog()
+                }
             }
             .setNegativeButton("No", null)
             .show()
@@ -70,4 +80,20 @@ class LogOutFragment : Fragment() {
             .setCancelable(false)
             .show()
     }
+
+    private fun showNotLoggedInDialog()
+    {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Not Logged In")
+            .setMessage("You are not logged in. Please log in or sign up.")
+            .setPositiveButton("Go to Login") { _, _ ->
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
 }
