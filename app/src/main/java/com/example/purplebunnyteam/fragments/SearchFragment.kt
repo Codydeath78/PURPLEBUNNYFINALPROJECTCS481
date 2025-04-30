@@ -36,6 +36,7 @@ import com.example.purplebunnyteam.InfoWindowButtonClickListener
 import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.graphics.Color
+import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 
@@ -70,12 +71,27 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     override fun onBookmarkClicked(place: PlaceDetails) {
         currentlySelectedMarker?.let { stopBouncingMarker(it) }
         currentlySelectedMarker = null
-        val fragment = BookmarkFragment()
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fContainer, fragment)
-            .addToBackStack(null)
-            .commit()
+
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+
+        if (userId != null) {
+            val userRef = db.collection("users").document(userId)
+            val cafeRef = db.collection("cafes").document(place.placeId)
+
+            userRef.update("favorites", com.google.firebase.firestore.FieldValue.arrayUnion(cafeRef))
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Bookmarked ${place.name}", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("BookmarkError", "Failed to bookmark: ${e.message}")
+                    Toast.makeText(requireContext(), "Failed to bookmark ${place.name}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(requireContext(), "You must be signed in to bookmark.", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     override fun onChatClicked(place: PlaceDetails) {
         currentlySelectedMarker?.let { stopBouncingMarker(it) }
