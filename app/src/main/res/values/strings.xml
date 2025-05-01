@@ -55,6 +55,16 @@
         <item>Normal</item>
     </string-array>
 
+    <string-array name="price_options">
+        <item>Not Selected</item>
+        <item>Inexpensive</item>
+        <item>Moderate</item>
+        <item>Expensive</item>
+        <item>Very Expensive</item>
+    </string-array>
+
+
+
     <string name="using_current_location">Using Current Location</string>
     <string name="location_selected">Location Selected</string>
     <string name="location_cancelled">Location selection cancelled</string>
@@ -62,7 +72,7 @@
     <string name="unable_to_get_location">Unable to get location</string>
     <string name="permission_needed">Location permission is required to use this feature</string>
     <string name="permission_denied">Permission denied</string>
-    <string name="google_maps_key">AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8</string> <!-- Replace with actual API key -->
+    <string name="google_maps_key">AIzaSyB-gQe2ZezzKjtyMZirdWv9G1oyqc0Kggc</string> <!-- Replace with actual API key -->
     <string name="default_map_style">Standard</string>
     <string name="no_location_selected">No location selected</string>
     <string name="this_is_the_bookmark_button">This is the bookmark button.</string>

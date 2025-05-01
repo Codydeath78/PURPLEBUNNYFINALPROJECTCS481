@@ -12,7 +12,9 @@ interface PlacesApiService {
         @Query("radius") radius: Int,
         @Query("type") type: String,
         @Query("key") apiKey: String,
-        @Query("opennow") openNow: String? = null
+        @Query("opennow") openNow: String? = null,
+        @Query("maxprice") maxPrice: Int? = null,
+        @Query("minprice") minPrice: Int? = null
     ): Call<PlacesResponse>
 
 }

@@ -94,6 +94,9 @@ class LocationFragment : Fragment() {
         val radiusSpinner: Spinner = view.findViewById(R.id.spinner_radius)
         val mapStyleSpinner: Spinner = view.findViewById(R.id.spinner_map_style)
         val switchOpenNow: SwitchMaterial = view.findViewById(R.id.switch_open_now)
+        val spinnerminprice: Spinner = view.findViewById(R.id.spinner_min_price)
+        val spinnermaxprice: Spinner = view.findViewById(R.id.spinner_max_price)
+
 
         val shopWifi: CheckBox = view.findViewById(R.id.chk_wifi)
         val shopChains: CheckBox = view.findViewById(R.id.chk_chains)
@@ -106,6 +109,15 @@ class LocationFragment : Fragment() {
         mapStyleSpinner.adapter = ArrayAdapter.createFromResource(
             requireContext(), R.array.map_style_options, android.R.layout.simple_spinner_dropdown_item
         )
+
+        spinnerminprice.adapter = ArrayAdapter.createFromResource(
+            requireContext(), R.array.price_options, android.R.layout.simple_spinner_dropdown_item
+        )
+
+        spinnermaxprice.adapter = ArrayAdapter.createFromResource(
+            requireContext(), R.array.price_options, android.R.layout.simple_spinner_dropdown_item
+        )
+
 
         btnSetLocation.setOnClickListener {
             val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
@@ -141,16 +153,6 @@ class LocationFragment : Fragment() {
                     Toast.makeText(requireContext(), R.string.location_disabled, Toast.LENGTH_SHORT).show()
                 }
             }
-
-            //if (isChecked) {
-                //sharedPrefs.edit { putBoolean("location_disabled", true) }
-                //Toast.makeText(requireContext(), R.string.location_disabled, Toast.LENGTH_SHORT).show()
-            //} else {
-                //sharedPrefs.edit { putBoolean("location_disabled", false) }
-            //}
-
-
-
         }
 
         val savePrefs = {
@@ -158,13 +160,15 @@ class LocationFragment : Fragment() {
                 putInt("search_radius", radiusSpinner.selectedItem.toString().replace(" km", "").toInt())
                 putString("map_style", mapStyleSpinner.selectedItem.toString())
                 putBoolean("open_now", switchOpenNow.isChecked)
+                putInt("min_price_index", spinnerminprice.selectedItemPosition)
+                putInt("max_price_index", spinnermaxprice.selectedItemPosition)
                 putBoolean("pref_wifi", shopWifi.isChecked)
                 putBoolean("pref_chains", shopChains.isChecked)
                 putBoolean("pref_independent", shopIndependent.isChecked)
             }
         }
 
-        listOf(radiusSpinner, mapStyleSpinner, switchOpenNow, shopWifi, shopChains, shopIndependent).forEach {
+        listOf(radiusSpinner, mapStyleSpinner, switchOpenNow, spinnerminprice, spinnermaxprice, shopWifi, shopChains, shopIndependent).forEach {
             when (it) {
                 is Spinner -> it.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) = savePrefs()
@@ -178,6 +182,8 @@ class LocationFragment : Fragment() {
             radiusSpinner,
             mapStyleSpinner,
             switchOpenNow,
+            spinnerminprice,
+            spinnermaxprice,
             shopWifi,
             shopChains,
             shopIndependent,
@@ -233,6 +239,8 @@ class LocationFragment : Fragment() {
         radiusSpinner: Spinner,
         mapStyleSpinner: Spinner,
         switchOpenNow: SwitchMaterial,
+        spinnerminprice: Spinner,
+        spinnermaxprice: Spinner,
         shopWifi: CheckBox,
         shopChains: CheckBox,
         shopIndependent: CheckBox,
@@ -241,6 +249,8 @@ class LocationFragment : Fragment() {
         val radius = sharedPrefs.getInt("search_radius", 5)
         val mapStyle = sharedPrefs.getString("map_style", getString(R.string.default_map_style))
         val openNow = sharedPrefs.getBoolean("open_now", false)
+        val minPrice = sharedPrefs.getInt("min_price_index", 0)
+        val maxPrice = sharedPrefs.getInt("max_price_index", 0)
         val wifi = sharedPrefs.getBoolean("pref_wifi", false)
         val chains = sharedPrefs.getBoolean("pref_chains", false)
         val independent = sharedPrefs.getBoolean("pref_independent", false)
@@ -259,6 +269,13 @@ class LocationFragment : Fragment() {
         val mapStyleOptions = resources.getStringArray(R.array.map_style_options)
         val mapStyleIndex = mapStyleOptions.indexOf(mapStyle)
         if (mapStyleIndex >= 0) mapStyleSpinner.setSelection(mapStyleIndex)
+
+
+
+        if (minPrice in 0..4) spinnerminprice.setSelection(minPrice)
+        if (maxPrice in 0..4) spinnermaxprice.setSelection(maxPrice)
+
+
 
         val lat = sharedPrefs.getFloat("lat", 0f).toDouble()
         val lng = sharedPrefs.getFloat("lng", 0f).toDouble()

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -65,7 +66,37 @@
             android:layout_height="wrap_content"
             android:text="Show Only Open Shops" />
 
-        <TextView android:text="Coffee Shop Preferences  -SUBJECT TO CHANGE, TBD"
+
+        <TextView
+            android:id="@+id/priceRangeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price Range: Free to Very Expensive"
+            android:textStyle="bold"/>
+
+        <Spinner
+            android:id="@+id/spinner_min_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp" />
+
+        <TextView
+            android:id="@+id/to"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TO"
+            android:textStyle="bold"/>
+
+
+        <Spinner
+            android:id="@+id/spinner_max_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp" />
+
+
+        <TextView android:text="Coffee Shop Preferences
+                                                                - Scheduled for future development if funded by potential investors"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"/>
         <CheckBox

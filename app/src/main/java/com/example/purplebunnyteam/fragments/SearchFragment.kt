@@ -1,4 +1,5 @@
 package com.example.purplebunnyteam.fragments
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -53,14 +54,15 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
     private var currentBottomSheetDialog: BottomSheetDialog? = null
     private var isBouncing = false
     private var currentBouncingMarker: Marker? = null
-    //private var suppressMarkerClick = false
+    private val cachedPlaces = mutableListOf<Pair<PlaceDetails, LatLng>>() // Stores place details + coordinates
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // This will inflate the layout for this fragment.
         val view = inflater.inflate(R.layout.fragment_search, container, false)
-        val searchView = view.findViewById<SearchView>(R.id.search_bar)
+        //val searchView = view.findViewById<SearchView>(R.id.search_bar)
 
         //This will get the SupportMapFragment and request the map to load.
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
@@ -68,6 +70,9 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
         return view
     }
+
+
+
 
     override fun onBookmarkClicked(place: PlaceDetails) {
         currentlySelectedMarker?.let { stopBouncingMarker(it) }
@@ -134,33 +139,11 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         val isDarkMode = nightModeFlags == Configuration.UI_MODE_NIGHT_YES
         //This will set the map coordinates to CSUSM.
         val CSUSM = LatLng(33.1284, -117.1592)
-        //This will set the map type to Hybrid.
-         // googleMap.mapType = GoogleMap.MAP_TYPE_HYBRID
-        //This will add a marker on the map coordinates.
-        //This will set custom info window.
-
-
-
-        //mMap.setOnMarkerClickListener { marker ->
-            //val place = marker.tag as? PlaceDetails
-            //if (place != null) {
-                //showPlaceBottomSheet(place)
-                //true // Consume the event
-            //} else {
-                //false // Default behavior
-            //}
-        //}
-
-
-        //mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap, this))
         val csusmMarker = mMap.addMarker(
             MarkerOptions()
                 .position(CSUSM)
                 .title("CSUSM")
         )
-
-
-
 
         csusmMarker?.tag = PlaceDetails(
             name = "CSUSM",
@@ -187,7 +170,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             LatLng(selectedLat, selectedLng)
         else defaultLocation
 
-
         if (isDarkMode) {
             try {
                 val success = mMap.setMapStyle(
@@ -208,10 +190,8 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                 else -> mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
             }
         }
-
         //This will move the camera to the map coordinates and zoom in closer.
         //mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(layoutInflater, placeToMarkerMap, this))
-
         mMap.setOnMarkerClickListener { marker ->
             // If this was triggered by a search and it's the same marker, skip showing again
             if (isSearchTriggered && marker == currentlySelectedMarker) {
@@ -226,8 +206,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             }
             true
         }
-
-
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedLocation, 10f))
         //This will display traffic.
         mMap.isTrafficEnabled = true
@@ -239,8 +217,52 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
         //This will fetch nearby coffee shops.
         //getNearbyPlaces(CSUSM, radiusKm * 1000, openNow)
+
+        ////////////////////////
+        if (cachedPlaces.isNotEmpty()) {
+            Log.d("MARKER_RESTORE", "Restoring markers from cache: ${cachedPlaces.size}")
+            for ((place, latLng) in cachedPlaces) {
+                val marker = mMap.addMarker(
+                    MarkerOptions()
+                        .position(latLng)
+                        .title(place.name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)) // Optional style
+                )
+
+                marker?.tag = place
+                if (marker != null) {
+                    markerMap[place.name] = marker
+                    placeToMarkerMap[place.placeId] = marker
+                }
+            }
+        } else {
+            getNearbyPlaces(selectedLocation, radiusKm * 1000, openNow)
+            setupSearchBar()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!::mMap.isInitialized) {
+            return // This will avoid crashing if map is not yet ready
+        }
+        val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
+        val selectedLat = sharedPrefs.getFloat("lat", 0f).toDouble()
+        val selectedLng = sharedPrefs.getFloat("lng", 0f).toDouble()
+        val openNow = sharedPrefs.getBoolean("open_now", false)
+        val radiusKm = sharedPrefs.getInt("search_radius", 5)
+
+        val selectedLocation = if (selectedLat != 0.0 && selectedLng != 0.0) {
+            LatLng(selectedLat, selectedLng)
+        } else {
+            LatLng(33.1284, -117.1592) // Default to CSUSM
+        }
+
+        mMap.clear()
+        cachedPlaces.clear()
+        markerMap.clear()
+        placeToMarkerMap.clear()
         getNearbyPlaces(selectedLocation, radiusKm * 1000, openNow)
-        setupSearchBar()
     }
 
     private fun setupSearchBar() {
@@ -258,8 +280,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         })
     }
 
-
-    //////////////does this bottomthing work?
     private fun showPlaceBottomSheet(place: PlaceDetails) {
         currentBottomSheetDialog?.dismiss() // Dismiss existing one
 
@@ -319,12 +339,9 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         dialog.setOnDismissListener {
             currentlySelectedMarker?.let { stopBouncingMarker(it) }
         }
-
-
-
         dialog.show()
     }
-//////////////does this bottomthing work?
+
     private fun startBouncingMarker(marker: Marker) {
         if (marker == currentBouncingMarker) {
             Log.d("BOUNCE", "Bounce already active for marker: ${marker.title}")
@@ -334,7 +351,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         stopBouncingMarker(currentBouncingMarker) // stop previous one if any
 
         currentBouncingMarker = marker
-        /////////////////////////////////////////////////
         isBouncing = true
         val handler = Handler(Looper.getMainLooper())
         val duration = 1200L
@@ -391,7 +407,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         currentBouncingMarker = null
     }
 
-
     private fun addRippleEffect(latLng: LatLng) {
 
         val nightModeFlags = requireContext().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
@@ -435,10 +450,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         })
     }
 
-
-
-
-
     private fun searchForMarker(query: String) { //This searches for marker and moves camera if found.
         val result = markerMap.entries.find { it.key.contains(query, ignoreCase = true)}
         if (result != null) {
@@ -473,8 +484,15 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
 
 
-
     private fun getNearbyPlaces(location: LatLng, radiusMeters: Int, openNow: Boolean) {
+        /////////////////////////////////////////////////////////////////////////////
+        val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
+        val minPrice = sharedPrefs.getInt("min_price_index", 0).takeIf { it in 1..5 }?.minus(1)
+        val maxPrice = sharedPrefs.getInt("max_price_index", 0).takeIf { it in 1..5 }?.minus(1)
+        //val minPrice = sharedPrefs.getInt("min_price_index", -1)
+        //val maxPrice = sharedPrefs.getInt("max_price_index", -1)
+        ////////////////////////////////////////////////////////////////////////////
+
         val baseUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/"
         val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -483,14 +501,16 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
 
         val service = retrofit.create(PlacesApiService::class.java)
 
+        //This makes API call
         val call = service.getNearbyPlaces(
             location = "${location.latitude},${location.longitude}",
             radius = radiusMeters,
             type = "cafe",
             apiKey = API_KEY,
-            openNow = if (openNow) "true" else null //This will only send param if true.
+            openNow = if (openNow) "true" else null, //This will only send param if true.
+            minPrice = minPrice,
+            maxPrice = maxPrice
         )
-        ///////////////////////////////////////
 
         fun resizeMapIcon(iconResId: Int, width: Int, height: Int): BitmapDescriptor {
             val bitmap = BitmapFactory.decodeResource(resources, iconResId)
@@ -504,9 +524,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                     "&photoreference=$photoReference" +
                     "&key=$apiKey"
         }
-
-
-
 
         call.enqueue(object : Callback<PlacesResponse> {
             override fun onResponse(call: Call<PlacesResponse>, response: Response<PlacesResponse>) {
@@ -567,34 +584,18 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                                     lng = 0.0,
                                     lat = 0.0
                                 )
-                                markerMap[place.name ?: "Unknown"] = it
-                                placeToMarkerMap[placeId] = it
+
+                                if (marker != null) {
+                                    markerMap[place.name ?: "Unknown"] = it
+                                    placeToMarkerMap[placeId] = it
+                                }
+                                //cachedPlaces.add(it, latLng)
                             }
                         } else {
                             // Marker already exists, optionally update position/title if needed
                             existingMarker.position = latLng
                             existingMarker.title = place.name
                         ///////////////old code below caused ghost coffee shop icon////////////////
-                        //val placeDetails = PlaceDetails(
-                            //placeId = placeId,
-                            //photoUrl = photoUrl,
-                            //name = place.name ?: "No name",
-                            //address = place.vicinity ?: "No address available",
-                            //rating = place.rating ?: 0.0
-                        //)
-
-                        //val marker = mMap.addMarker(
-                            //MarkerOptions()
-                                //.position(latLng)
-                                //.title(place.name)
-                                //.icon(resizeMapIcon(R.drawable.coffee_cup, 100, 100))
-                        //)
-
-                        //marker?.tag = placeDetails
-
-                        //marker?.let {
-                            //markerMap[place.name ?: "Unknown"] = it
-                            //placeToMarkerMap[placeId] = it
                         }
                     }
                 }
@@ -606,5 +607,21 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             }
         })
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

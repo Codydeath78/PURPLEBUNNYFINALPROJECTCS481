@@ -1,6 +1,5 @@
 package com.example.purplebunnyteam.fragments
 
-import android.R.attr.textColor
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle

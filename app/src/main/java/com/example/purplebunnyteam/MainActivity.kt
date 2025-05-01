@@ -1,34 +1,16 @@
 package com.example.purplebunnyteam
 
-import android.content.Intent
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.setupWithNavController
-import androidx.navigation.findNavController
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.purplebunnyteam.fragments.*
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        /////////////////////////////////
-        //if (FirebaseAuth.getInstance().currentUser == null) {
-            // Redirect to LoginActivity
-            //val intent = Intent(this, LoginActivity::class.java)
-            //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            //startActivity(intent)
-            //finish()
-            //return
-        //}
-        ///////////////////////////// --I will finish later...
-
         val prefs = getSharedPreferences("UserPreferences", MODE_PRIVATE)
         val darkModeEnabled = prefs.getBoolean("dark_mode_enabled", false)
         AppCompatDelegate.setDefaultNightMode(

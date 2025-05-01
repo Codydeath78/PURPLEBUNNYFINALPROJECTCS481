@@ -65,7 +65,7 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
-
+    //implementation(libs.play.services.maps.v1920)
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.android.libraries.places:places:4.2.0")
 }
