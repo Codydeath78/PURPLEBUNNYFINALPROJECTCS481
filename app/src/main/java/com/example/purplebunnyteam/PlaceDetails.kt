@@ -1,9 +1,11 @@
 package com.example.purplebunnyteam
 
 data class PlaceDetails(
-    val placeId: String,
-    val photoUrl: String?,
     val name: String,
     val address: String,
-    val rating: Double?
+    val rating: Double,
+    val photoUrl: String,
+    val placeId: String,
+    val lat: Double,
+    val lng: Double
 )

@@ -1,6 +1,7 @@
 package com.example.purplebunnyteam.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.purplebunnyteam.Bookmark
 import com.example.purplebunnyteam.BookmarkAdapter
 import com.example.purplebunnyteam.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 
 class BookmarkFragment : Fragment() {
 
@@ -32,27 +36,47 @@ class BookmarkFragment : Fragment() {
 
         adapter = BookmarkAdapter().apply {
             setEmptyStateView(emptyState)
-            submitList(getDummyBookmarks())
         }
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
-    }
 
-    private fun getDummyBookmarks(): List<Bookmark> = listOf(
-        Bookmark(
-            id = "1",
-            name = "Coffee Haven",
-            address = "123 Java Street",
-            imageUrl = "https://example.com/coffee1.jpg",
-            rating = 4.5f
-        ),
-        Bookmark(
-            id = "2",
-            name = "Espresso Corner",
-            address = "456 Brew Lane",
-            imageUrl = "https://example.com/coffee2.jpg",
-            rating = 4.0f
-        )
-    )
+        // Fetch bookmarks from Firestore
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { userDoc ->
+                val favorites = userDoc.get("favorites") as? List<DocumentReference> ?: emptyList()
+                val bookmarks = mutableListOf<Bookmark>()
+
+                if (favorites.isEmpty()) {
+                    adapter.submitList(emptyList())
+                    return@addOnSuccessListener
+                }
+
+                favorites.forEach { cafeRef ->
+                    cafeRef.get().addOnSuccessListener { cafeDoc ->
+                        val bookmark = Bookmark(
+                            id = cafeDoc.id,
+                            name = cafeDoc.getString("name") ?: "",
+                            address = cafeDoc.getString("address") ?: "",
+                            imageUrl = cafeDoc.getString("imageUrl") ?: "",
+                            rating = cafeDoc.getDouble("rating")?.toFloat() ?: 0.0f
+                        )
+                        bookmarks.add(bookmark)
+
+                        // Submit list when all cafes are processed
+                        if (bookmarks.size == favorites.size) {
+                            adapter.submitList(bookmarks)
+                        }
+                    }.addOnFailureListener { e ->
+                        Log.e("BookmarkFragment", "Error fetching cafe: ${e.message}")
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("BookmarkFragment", "Error fetching user: ${e.message}")
+            }
+    }
 }

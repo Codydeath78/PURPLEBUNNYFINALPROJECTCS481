@@ -39,12 +39,13 @@ import android.graphics.Color
 import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 
 
 class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickListener {
 
     private lateinit var mMap: GoogleMap
-    private val API_KEY = "AIzaSyBl7Ue74Ln14TV2ltZeYmuvs8Gc0S3cth8"
+    private val API_KEY = "AIzaSyB-gQe2ZezzKjtyMZirdWv9G1oyqc0Kggc"
     private val markerMap = mutableMapOf<String, Marker>() //This will store Marker references instead of LatLg so we can show info.
     private val placeToMarkerMap = mutableMapOf<String, Marker>()
     private var currentlySelectedMarker: Marker? = null
@@ -79,16 +80,32 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             val userRef = db.collection("users").document(userId)
             val cafeRef = db.collection("cafes").document(place.placeId)
 
-            userRef.update("favorites", com.google.firebase.firestore.FieldValue.arrayUnion(cafeRef))
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Bookmarked ${place.name}", Toast.LENGTH_SHORT).show()
+            // Check if cafe exists, create if not
+            cafeRef.get().addOnSuccessListener { cafeDoc ->
+                if (!cafeDoc.exists()) {
+                    val newCafe = hashMapOf(
+                        "id" to place.placeId,
+                        "name" to place.name,
+                        "address" to place.address,
+                        "imageUrl" to place.photoUrl,
+                        "rating" to place.rating.toFloat(),
+                        "lat" to place.lat,
+                        "lng" to place.lng,
+                        "createdAt" to Timestamp.now(),
+                        "addedByUser" to false
+                    )
+                    cafeRef.set(newCafe)
                 }
-                .addOnFailureListener { e ->
-                    Log.e("BookmarkError", "Failed to bookmark: ${e.message}")
-                    Toast.makeText(requireContext(), "Failed to bookmark ${place.name}", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(requireContext(), "You must be signed in to bookmark.", Toast.LENGTH_SHORT).show()
+
+                // Add reference to user's favorites
+                userRef.update("favorites", FieldValue.arrayUnion(cafeRef))
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Bookmarked ${place.name}", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("BookmarkError", "Error: ${e.message}")
+                    }
+            }
         }
     }
 
@@ -150,7 +167,9 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             address = "333 S Twin Oaks Valley Rd, San Marcos, CA 92096",
             rating = 5.0,
             photoUrl = "https://www.csusm.edu/facultyopportunities/images/campus_drone.png",
-            placeId = "Null"
+            placeId = "Null",
+            lng = 33.1284,
+            lat = -117.1592
         )
 
         val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
@@ -506,12 +525,13 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                         cafeRef.get().addOnSuccessListener { doc ->
                             if (!doc.exists()) {
                                 val newCafe = hashMapOf(
+                                    "id" to placeId,
                                     "name" to place.name,
                                     "address" to place.vicinity,
+                                    "imageUrl" to photoUrl,
+                                    "rating" to (place.rating?.toFloat() ?: 0.0f), // Convert Double to Float
                                     "lat" to place.geometry.location.lat,
                                     "lng" to place.geometry.location.lng,
-                                    "googleRating" to place.rating,
-                                    "placeId" to placeId,
                                     "createdAt" to Timestamp.now(),
                                     "addedByUser" to false
                                 )
@@ -543,7 +563,9 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                                     address = place.vicinity ?: "No address available",
                                     rating = place.rating ?: 0.0,
                                     photoUrl = photoUrl,
-                                    placeId = placeId
+                                    placeId = placeId,
+                                    lng = 0.0,
+                                    lat = 0.0
                                 )
                                 markerMap[place.name ?: "Unknown"] = it
                                 placeToMarkerMap[placeId] = it
