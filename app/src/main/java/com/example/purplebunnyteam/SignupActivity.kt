@@ -7,10 +7,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SignupActivity : AppCompatActivity() {
     private lateinit var editUsername: EditText
@@ -36,14 +34,13 @@ class SignupActivity : AppCompatActivity() {
     }
 
     private fun signupUser() {
-        val username = editUsername.text.toString()
-        val email = editEmail.text.toString()
-        val password = editPassword.text.toString()
-        val confirmPassword = editConfirmPassword.text.toString()
+        val username = editUsername.text.toString().trim()
+        val email = editEmail.text.toString().trim()
+        val password = editPassword.text.toString().trim()
+        val confirmPassword = editConfirmPassword.text.toString().trim()
 
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(email) ||
-            TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)
-        ) {
+            TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -53,30 +50,58 @@ class SignupActivity : AppCompatActivity() {
             return
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener(
-                this
-            ) { task: Task<AuthResult?> ->
-                if (task.isSuccessful) {
-                    Toast.makeText(
-                        this@SignupActivity,
-                        "Signup successful!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    startActivity(
-                        Intent(
-                            this@SignupActivity,
-                            LoginActivity::class.java
-                        )
-                    )
-                    finish()
+        val firestore = FirebaseFirestore.getInstance()
+        val usersRef = firestore.collection("users")
+
+        // Check username availability
+        usersRef.whereEqualTo("name", username).get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    Toast.makeText(this, "Username already taken", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(
-                        this@SignupActivity,
-                        "Signup failed: " + task.exception!!.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    createFirebaseAccount(email, password, username)
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error checking username: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun createFirebaseAccount(email: String, password: String, username: String) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val firebaseUser = mAuth.currentUser
+                    if (firebaseUser != null) {
+                        saveUserToFirestore(firebaseUser.uid, username, email)
+                    } else {
+                        Toast.makeText(this, "User authentication failed", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Signup failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun saveUserToFirestore(userId: String, username: String, email: String) {
+        val user = User(
+            userId = userId,
+            name = username,
+            email = email
+            // profilePicture defaults to empty string
+            // joinedAt will be set automatically by Firestore
+        )
+
+        FirebaseFirestore.getInstance().collection("users")
+            .document(userId)
+            .set(user)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Signup Successful!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to save user: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }

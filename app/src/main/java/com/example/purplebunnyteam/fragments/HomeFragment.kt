@@ -70,17 +70,16 @@ class HomeFragment : Fragment() {
             activity?.recreate()
         }
 
-        profileButton.setOnClickListener{
+        profileButton.setOnClickListener {
             val user = FirebaseAuth.getInstance().currentUser
-            if (user == null)
-            {
+            if (user == null) {
                 val intent = Intent(requireContext(), LoginActivity::class.java)
                 startActivity(intent)
-            }
-            else
-            {
-                val intent = Intent(requireContext(), AccountFragment::class.java)
-                startActivity(intent)
+            } else {
+                // Replace current fragment with AccountFragment
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fContainer, AccountFragment())
+                    .commit()
             }
         }
 
