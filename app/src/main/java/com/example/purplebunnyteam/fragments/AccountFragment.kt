@@ -92,12 +92,17 @@ class AccountFragment : Fragment() {
                     }
 
                     //This will check email verification status.
-                    val isVerified = auth.currentUser?.isEmailVerified == true
-                    if (!isVerified) {
-                        Toast.makeText(requireContext(), "Your email is not verified. Limited access.", Toast.LENGTH_LONG).show()
-                        btnSave.isEnabled = false
-                        btnSave.text = "Verify Email to Save"
-                        auth.currentUser?.sendEmailVerification()
+                    auth.currentUser?.reload()?.addOnSuccessListener {
+                        val isVerified = auth.currentUser?.isEmailVerified == true
+                        if (!isVerified) {
+                            Toast.makeText(requireContext(), "Your email is not verified. Limited access.", Toast.LENGTH_LONG).show()
+                            btnSave.isEnabled = false
+                            btnSave.text = "Verify Email to Save"
+                            auth.currentUser?.sendEmailVerification()
+                        } else {
+                            btnSave.isEnabled = true
+                            btnSave.text = "Save Changes"
+                        }
                     }
                 }
             }
@@ -147,8 +152,14 @@ class AccountFragment : Fragment() {
                             ref.putFile(uri).addOnSuccessListener {
                                 ref.downloadUrl.addOnSuccessListener { url ->
                                     db.collection("users").document(uid).update("profileImage", url.toString())
+                                        .addOnSuccessListener {
+                                            Toast.makeText(requireContext(), "Changes saved", Toast.LENGTH_SHORT).show()
+                                        }
                                 }
                             }
+                        } ?: run {
+                            // If no image to upload, this will still show success
+                            Toast.makeText(requireContext(), "Changes saved", Toast.LENGTH_SHORT).show()
                         }
 
                         //This will send email verification if not verified.
@@ -157,8 +168,6 @@ class AccountFragment : Fragment() {
                                 Toast.makeText(requireContext(), "Verification email sent.", Toast.LENGTH_SHORT).show()
                             }
                         }
-
-                        Toast.makeText(requireContext(), "Changes saved", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
