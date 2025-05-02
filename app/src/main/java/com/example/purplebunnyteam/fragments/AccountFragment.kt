@@ -9,6 +9,7 @@ import android.telephony.PhoneNumberUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
@@ -18,8 +19,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import java.util.*
+import android.app.AlertDialog
 
 class AccountFragment : Fragment() {
 
@@ -35,17 +36,16 @@ class AccountFragment : Fragment() {
 
     private val auth: FirebaseAuth = Firebase.auth
     private val db = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
     private val userId get() = auth.currentUser?.uid
 
-    private var imageUri: Uri? = null
+    private var selectedProfileImage: Int = R.drawable.avatar // Default fallback
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            imageUri = result.data?.data
-            imageProfile.setImageURI(imageUri)
-        }
-    }
+    private val defaultImages = listOf(
+        R.drawable.default_1,
+        R.drawable.default_2,
+        R.drawable.default_3,
+        R.drawable.default_4
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +63,7 @@ class AccountFragment : Fragment() {
         editBio = view.findViewById(R.id.editBio)
         btnSave = view.findViewById(R.id.btnSave)
 
-        btnChangePicture.setOnClickListener { openGallery() }
+        btnChangePicture.setOnClickListener { showImageSelectionDialog() }
         btnSave.setOnClickListener { saveChanges() }
 
         loadUserData()
@@ -71,9 +71,27 @@ class AccountFragment : Fragment() {
         return view
     }
 
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        pickImageLauncher.launch(intent)
+    private fun showImageSelectionDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_image_selection, null)
+        val imageContainer = dialogView.findViewById<LinearLayout>(R.id.imageContainer)
+
+        defaultImages.forEach { resId ->
+            val img = ImageView(requireContext())
+            img.setImageResource(resId)
+            img.setPadding(16, 16, 16, 16)
+            img.layoutParams = LinearLayout.LayoutParams(200, 200)
+            img.setOnClickListener {
+                selectedProfileImage = resId
+                imageProfile.setImageResource(resId)
+            }
+            imageContainer.addView(img)
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Choose a profile picture")
+            .setView(dialogView)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun loadUserData() {
@@ -86,9 +104,13 @@ class AccountFragment : Fragment() {
                     editPhone.setText(doc.getString("phone"))
                     editBio.setText(doc.getString("bio"))
 
-                    val imageUrl = doc.getString("profileImage")
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(imageUrl).into(imageProfile)
+                    val imageName = doc.getString("profileImageName")
+                    imageName?.let {
+                        val resId = resources.getIdentifier(it, "drawable", requireContext().packageName)
+                        if (resId != 0) {
+                            selectedProfileImage = resId
+                            Glide.with(this).load(resId).into(imageProfile)
+                        }
                     }
 
                     //This will check email verification status.
@@ -134,34 +156,19 @@ class AccountFragment : Fragment() {
                 if (isUsernameTaken) {
                     Toast.makeText(requireContext(), "Username already taken", Toast.LENGTH_SHORT).show()
                 } else {
+                    val imageName = resources.getResourceEntryName(selectedProfileImage)
                     val userData = hashMapOf(
                         "username" to username,
                         "name" to name,
                         "address" to address,
                         "phone" to phone,
-                        "bio" to bio
+                        "bio" to bio,
+                        "profileImageName" to imageName
                     )
-
                     db.collection("users").document(uid).update(userData as Map<String, Any>).addOnSuccessListener {
                         if (password.isNotEmpty()) {
                             auth.currentUser?.updatePassword(password)
                         }
-
-                        imageUri?.let { uri ->
-                            val ref = storage.reference.child("profileImages/$uid.jpg")
-                            ref.putFile(uri).addOnSuccessListener {
-                                ref.downloadUrl.addOnSuccessListener { url ->
-                                    db.collection("users").document(uid).update("profileImage", url.toString())
-                                        .addOnSuccessListener {
-                                            Toast.makeText(requireContext(), "Changes saved", Toast.LENGTH_SHORT).show()
-                                        }
-                                }
-                            }
-                        } ?: run {
-                            // If no image to upload, this will still show success
-                            Toast.makeText(requireContext(), "Changes saved", Toast.LENGTH_SHORT).show()
-                        }
-
                         //This will send email verification if not verified.
                         if (auth.currentUser?.isEmailVerified == false) {
                             auth.currentUser?.sendEmailVerification()?.addOnSuccessListener {

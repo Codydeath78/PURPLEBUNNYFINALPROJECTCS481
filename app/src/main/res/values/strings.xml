@@ -88,5 +88,6 @@
     <string name="signup">Signup</string>
     <string name="create_account">Create Account</string>
     <string name="confirm_your_password">Confirm Your Password</string>
+    <string name="choose_default_avatar">choose default avatar</string>
 
 </resources>
