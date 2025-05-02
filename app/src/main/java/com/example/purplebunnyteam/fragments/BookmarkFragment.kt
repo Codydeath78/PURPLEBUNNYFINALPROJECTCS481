@@ -33,9 +33,20 @@ class BookmarkFragment : Fragment() {
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.rvBookmarks)
         val emptyState = view.findViewById<TextView>(R.id.tvEmptyState)
+        val notsignedinState = view.findViewById<TextView>(R.id.tvNotSignedInState)
 
-        adapter = BookmarkAdapter().apply {
-            setEmptyStateView(emptyState)
+        val userauthId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userauthId != null) {
+
+            adapter = BookmarkAdapter().apply {
+                setEmptyStateView(emptyState)
+            }
+        }
+        else {
+            adapter = BookmarkAdapter().apply {
+                setEmptyStateView(notsignedinState)
+            }
         }
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

@@ -15,6 +15,15 @@
         android:textSize="18sp"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/tvNotSignedInState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Please login in to view your Bookmarks"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:visibility="gone"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvBookmarks"
         android:layout_width="match_parent"

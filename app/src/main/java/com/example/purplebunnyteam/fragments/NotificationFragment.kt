@@ -106,7 +106,7 @@ class NotificationFragment : Fragment() {
         }
 
         checkboxEmail.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit() { putBoolean("email", isChecked) }
+            prefs.edit { putBoolean("email", isChecked) }
         }
 
         btnSetSilentPeriod.setOnClickListener {

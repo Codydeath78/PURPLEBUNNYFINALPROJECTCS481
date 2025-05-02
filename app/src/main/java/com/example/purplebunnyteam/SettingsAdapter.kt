@@ -31,20 +31,10 @@ class SettingsAdapter(
         //This will set text color dynamically based on theme
         holder.titleTextView.setTextColor(textColor)
         holder.subTitleTextView.setTextColor(textColor)
-
-
-
-
         //This will handle the item click.
         holder.itemView.setOnClickListener {
             onItemClick(position)
         }
-
-
-
-
-
-
     }
 
     override fun getItemCount(): Int {

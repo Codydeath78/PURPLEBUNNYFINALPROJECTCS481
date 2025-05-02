@@ -16,6 +16,7 @@ import com.example.purplebunnyteam.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
+import com.google.firebase.firestore.FirebaseFirestore
 
 class DeleteAccountFragment : Fragment() {
 
@@ -57,25 +58,36 @@ class DeleteAccountFragment : Fragment() {
     }
 
     private fun deleteAccount() {
-        val user = auth.currentUser
-        if (user == null) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid
+        val db = FirebaseFirestore.getInstance()
+        if (currentUser == null || userId == null) {
             Toast.makeText(requireContext(), "No user signed in", Toast.LENGTH_LONG).show()
             return
         }
 
         Toast.makeText(requireContext(), "Attempting to delete user...", Toast.LENGTH_SHORT).show()
 
-        user.delete().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
-                showSuccessDialog()
-            } else {
-                val exception = task.exception
-                if (exception is FirebaseAuthRecentLoginRequiredException) {
-                    Toast.makeText(requireContext(), "Needs re-auth", Toast.LENGTH_SHORT).show()
-                    promptReauthentication()
+        //This will delete Firestore document
+        db.collection("users").document(userId).delete().addOnSuccessListener {
+
+            // Then it will delete the Auth user
+            currentUser.delete().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
+                    showSuccessDialog()
                 } else {
-                    Toast.makeText(requireContext(), "Error: ${exception?.message}", Toast.LENGTH_LONG).show()
+                    val exception = task.exception
+                    if (exception is FirebaseAuthRecentLoginRequiredException) {
+                        Toast.makeText(requireContext(), "Needs re-auth", Toast.LENGTH_SHORT).show()
+                        promptReauthentication()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error: ${exception?.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }

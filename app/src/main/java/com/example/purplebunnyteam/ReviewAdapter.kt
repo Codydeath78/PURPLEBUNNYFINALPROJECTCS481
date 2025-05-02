@@ -9,9 +9,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-
 class ReviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -100,12 +100,12 @@ class ReviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 if (review.isLiked) R.drawable.ic_like_filled
                 else R.drawable.ic_like
             )
+                ibLike.setOnClickListener {
+                    review.isLiked = !review.isLiked
+                    review.likes += if (review.isLiked) 1 else -1
+                    notifyItemChanged(adapterPosition)
+                }
 
-            ibLike.setOnClickListener {
-                review.isLiked = !review.isLiked
-                review.likes += if (review.isLiked) 1 else -1
-                notifyItemChanged(adapterPosition)
-            }
 
             Glide.with(itemView.context)
                 .load(R.drawable.avatar)
