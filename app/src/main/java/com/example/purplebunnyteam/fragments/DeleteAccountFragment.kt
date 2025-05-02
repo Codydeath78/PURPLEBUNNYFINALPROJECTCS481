@@ -15,7 +15,6 @@ import com.example.purplebunnyteam.MainActivity
 import com.example.purplebunnyteam.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DeleteAccountFragment : Fragment() {
@@ -57,67 +56,74 @@ class DeleteAccountFragment : Fragment() {
             .show()
     }
 
+
+    //Toast.makeText(requireContext(), "Attempting to delete user...", Toast.LENGTH_SHORT).show()
+
     private fun deleteAccount() {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        val userId = currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
-        if (currentUser == null || userId == null) {
+        if (currentUser == null) {
             Toast.makeText(requireContext(), "No user signed in", Toast.LENGTH_LONG).show()
             return
         }
 
         Toast.makeText(requireContext(), "Attempting to delete user...", Toast.LENGTH_SHORT).show()
 
-        //This will delete Firestore document
-        db.collection("users").document(userId).delete().addOnSuccessListener {
+        // This will always prompt reauthentication first
+        promptReauthentication { isReauthenticated ->
+            if (isReauthenticated) {
+                val userId = currentUser.uid
+                val db = FirebaseFirestore.getInstance()
 
-            // Then it will delete the Auth user
-            currentUser.delete().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
-                    showSuccessDialog()
-                } else {
-                    val exception = task.exception
-                    if (exception is FirebaseAuthRecentLoginRequiredException) {
-                        Toast.makeText(requireContext(), "Needs re-auth", Toast.LENGTH_SHORT).show()
-                        promptReauthentication()
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Error: ${exception?.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                // This will first delete Firestore document
+                db.collection("users").document(userId).delete().addOnSuccessListener {
+                    // Then it will delete FirebaseAuth user
+                    currentUser.delete().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
+                            showSuccessDialog()
+                        } else {
+                            Toast.makeText(requireContext(), "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                        }
                     }
+                }.addOnFailureListener { e ->
+                    Toast.makeText(requireContext(), "Firestore deletion failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
+            } else {
+                Toast.makeText(requireContext(), "Reauthentication failed. Account not deleted.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun promptReauthentication() {
+
+    private fun promptReauthentication(callback: (Boolean) -> Unit) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_reauth, null)
         val emailField = dialogView.findViewById<EditText>(R.id.emailInput)
         val passwordField = dialogView.findViewById<EditText>(R.id.passwordInput)
 
         AlertDialog.Builder(requireContext())
             .setTitle("Re-authenticate")
-            .setMessage("Please re-enter your email and password to delete your account.")
+            .setMessage("Please re-enter your email and password to confirm account deletion.")
             .setView(dialogView)
             .setPositiveButton("Confirm") { _, _ ->
                 val email = emailField.text.toString()
                 val password = passwordField.text.toString()
 
+                if (email.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(requireContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show()
+                    callback(false)
+                    return@setPositiveButton
+                }
+
                 val credential = EmailAuthProvider.getCredential(email, password)
                 auth.currentUser?.reauthenticate(credential)?.addOnCompleteListener { authTask ->
-                    if (authTask.isSuccessful) {
-                        deleteAccount() //This will retry after successful re-auth.
-                    } else {
-                        Toast.makeText(requireContext(), "Re-authentication failed.", Toast.LENGTH_LONG).show()
-                    }
+                    callback(authTask.isSuccessful)
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Cancel") { _, _ -> callback(false) }
+            .setCancelable(false)
             .show()
     }
+
 
     private fun showSuccessDialog() {
         AlertDialog.Builder(requireContext())
