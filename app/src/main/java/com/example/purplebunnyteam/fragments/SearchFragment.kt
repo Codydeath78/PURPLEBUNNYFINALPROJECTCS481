@@ -112,6 +112,10 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                     }
             }
         }
+        else {
+            Toast.makeText(context, "Please login first in order to bookmark!", Toast.LENGTH_SHORT).show()
+            return
+        }
     }
 
 
@@ -119,17 +123,28 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         currentlySelectedMarker?.let { stopBouncingMarker(it) }
         currentlySelectedMarker = null
 
-        val fragment = ChatFragment().apply {
-            arguments = Bundle().apply {
-                putString("cafeId", place.placeId)
-                putString("cafeName", place.name)
-                putString("cafeImageUrl",place.photoUrl)
+        val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            val fragment = ChatFragment().apply {
+                arguments = Bundle().apply {
+                    putString("cafeId", place.placeId)
+                    putString("cafeName", place.name)
+                    putString("cafeImageUrl", place.photoUrl)
+                }
             }
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fContainer, fragment)
+                .addToBackStack(null)
+                .commit()
         }
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fContainer, fragment)
-            .addToBackStack(null)
-            .commit()
+        else {
+            Toast.makeText(context, "Please login first to access reviews!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
+
     }
 
     //This will update the map configuration at runtime.
@@ -312,6 +327,9 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             .placeholder(R.drawable.ic_placeholder)
             .into(image)
 
+
+
+
         bookmarkBtn.setOnClickListener {
             dialog.dismiss()
             onBookmarkClicked(place)
@@ -481,9 +499,6 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
         }
     }
 
-
-
-
     private fun getNearbyPlaces(location: LatLng, radiusMeters: Int, openNow: Boolean) {
         /////////////////////////////////////////////////////////////////////////////
         val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
@@ -607,21 +622,4 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             }
         })
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
