@@ -68,16 +68,32 @@ class HomeFragment : Fragment() {
             }
         }
 
-        //This will load profile image from cache if available
+
+        // Instantly load profile image from memory cache or SharedPreferences
+        val storedImageName = sharedPrefs.getString("profileImageName", null)
         if (cachedProfileResId != null && isAdded) {
+            // Load from memory cache
             Glide.with(this)
                 .load(cachedProfileResId)
                 .placeholder(R.drawable.avatar)
                 .error(R.drawable.avatar)
                 .into(profileButton)
+        } else if (!storedImageName.isNullOrEmpty()) {
+            // Load from SharedPreferences cache
+            val resId = resources.getIdentifier(
+                storedImageName, "drawable", requireContext().packageName
+            )
+            if (resId != 0 && isAdded) {
+                cachedProfileResId = resId
+                Glide.with(this)
+                    .load(resId)
+                    .placeholder(R.drawable.avatar)
+                    .error(R.drawable.avatar)
+                    .into(profileButton)
+            }
         } else {
 
-        //This fetch profile image from Firestore and load into avatar button
+        // Load from Firestore
         val user = FirebaseAuth.getInstance().currentUser
         user?.uid?.let { uid ->
             FirebaseFirestore.getInstance().collection("users").document(uid).get()
@@ -91,6 +107,9 @@ class HomeFragment : Fragment() {
                         )
                         if (resId != 0) {
                             cachedProfileResId = resId //This will cache it
+                            sharedPrefs.edit {
+                                putString("profileImageName", imageName)
+                            }
                             Glide.with(this)
                                 .load(resId)
                                 .placeholder(R.drawable.avatar)
