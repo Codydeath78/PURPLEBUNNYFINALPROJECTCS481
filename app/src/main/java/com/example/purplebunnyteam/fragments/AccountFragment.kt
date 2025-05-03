@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import java.util.*
 import android.app.AlertDialog
+import androidx.core.content.edit
 
 class AccountFragment : Fragment() {
 
@@ -166,15 +167,30 @@ class AccountFragment : Fragment() {
                         "profileImageName" to imageName
                     )
                     db.collection("users").document(uid).update(userData as Map<String, Any>).addOnSuccessListener {
+                        //This will update cache to make it instantly visible in HomeFragment
+                        val resId = selectedProfileImage
+                        val imageName = resources.getResourceEntryName(resId)
+
+                        //This will save to SharedPreferences
+                        val sharedPrefs = requireContext().getSharedPreferences("UserPreferences", 0)
+                        sharedPrefs.edit { putString("profileImageName", imageName) }
+
+                        //This will update static cache in HomeFragment
+                        HomeFragment::class.java.getDeclaredField("cachedProfileResId").apply {
+                            isAccessible = true
+                            set(null, resId)
+                        }
+
                         if (password.isNotEmpty()) {
                             auth.currentUser?.updatePassword(password)
                         }
-                        //This will send email verification if not verified.
+                        //This will send email verification if not verified
                         if (auth.currentUser?.isEmailVerified == false) {
                             auth.currentUser?.sendEmailVerification()?.addOnSuccessListener {
                                 Toast.makeText(requireContext(), "Verification email sent.", Toast.LENGTH_SHORT).show()
                             }
                         }
+                        Toast.makeText(requireContext(), "Changes saved successfully", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
