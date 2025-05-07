@@ -34,14 +34,17 @@ class NotificationFragment : Fragment() {
             val start = prefs.getInt("silent_start", -1)
             val end = prefs.getInt("silent_end", -1)
 
-            if (start != -1 && end != -1 && isSilentPeriodExpired(start, end)) {
-                prefs.edit { remove("silent_start"); remove("silent_end") }
-                textSilentPeriod.text = "Silent Period: Not set"
+                if (start != -1 && end != -1) {
+                    if (!isSilentPeriodExpired(start, end)) {
+                        textSilentPeriod.text = "Silent Period: ${formatTime(start)} to ${formatTime(end)}"
+                    } else {
+                        textSilentPeriod.text = "Silent Period: Not active"
+                    }
+                } else {
+                    textSilentPeriod.text = "Silent Period: Not set"
+                }
+                handler.postDelayed(this, 1000)
             }
-
-            //This will run again every 1 second.
-            handler.postDelayed(this, 1 * 1000)
-        }
     }
 
     override fun onCreateView(
@@ -152,10 +155,10 @@ class NotificationFragment : Fragment() {
         val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
 
         return if (start < end) {
-            currentMinutes > end || currentMinutes < start
+            currentMinutes >= end || currentMinutes < start
         } else {
             // Example: Overnight period (e.g., 23:00 to 07:00)
-            currentMinutes > end && currentMinutes < start
+            currentMinutes >= end && currentMinutes < start
         }
     }
 }

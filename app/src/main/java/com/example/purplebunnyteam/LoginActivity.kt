@@ -41,7 +41,8 @@ class LoginActivity : AppCompatActivity() {
         val password = editPassword.text.toString().trim()
 
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(this, "Please fill in all fields")
             return
         }
 
@@ -52,13 +53,15 @@ class LoginActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 when {
                     documents.isEmpty -> {
-                        Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
+                        NotificationUtils.showToast(this, "Username not found")
                     }
                     else -> {
                         // Get the associated email from Firestore
                         val userEmail = documents.documents[0].getString("email") ?: ""
                         if (userEmail.isEmpty()) {
-                            Toast.makeText(this, "Email not found for user", Toast.LENGTH_SHORT).show()
+                            //Toast.makeText(this, "Email not found for user", Toast.LENGTH_SHORT).show()
+                            NotificationUtils.showToast(this, "Email not found for user")
                             return@addOnSuccessListener
                         }
 
@@ -68,7 +71,8 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error checking username: ${it.message}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Error checking username: ${it.message}", Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(this, "Error checking username: ${it.message}")
             }
     }
 
@@ -78,7 +82,8 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     verifyFirestoreUser()
                 } else {
-                    Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(this, "Authentication failed: ${task.exception?.message}")
                 }
             }
     }
@@ -92,12 +97,14 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 } else {
-                    Toast.makeText(this, "User data mismatch", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "User data mismatch", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(this, "User data mismatch")
                     mAuth.signOut()
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error verifying user data", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Error verifying user data", Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(this, "Error verifying user data")
             }
     }
 }

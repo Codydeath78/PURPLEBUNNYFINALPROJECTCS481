@@ -21,6 +21,7 @@ import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.switchmaterial.SwitchMaterial
 import androidx.core.content.edit
+import com.example.purplebunnyteam.NotificationUtils
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.widget.AutocompleteActivity
 
@@ -36,7 +37,8 @@ class LocationFragment : Fragment() {
             if (isGranted) {
                 getCurrentLocation()
             } else {
-                Toast.makeText(requireContext(), R.string.permission_denied, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), R.string.permission_denied, Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(requireContext(), getString(R.string.permission_denied))
             }
         }
 
@@ -55,19 +57,22 @@ class LocationFragment : Fragment() {
                             selectedLocationText.text = name ?: getString(R.string.location_selected)
                             saveLocation(latLng.latitude, latLng.longitude, name)
                         } else {
-                            Toast.makeText(requireContext(), R.string.unable_to_get_location, Toast.LENGTH_SHORT).show()
+                            //Toast.makeText(requireContext(), R.string.unable_to_get_location, Toast.LENGTH_SHORT).show()
+                            NotificationUtils.showToast(requireContext(), getString(R.string.unable_to_get_location))
                         }
                     }
                 }
 
                 AutocompleteActivity.RESULT_ERROR -> {
                     val status = Autocomplete.getStatusFromIntent(result.data!!)
-                    Toast.makeText(requireContext(), "Error: ${status.statusMessage}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), "Error: ${status.statusMessage}", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(requireContext(), "Error: ${status.statusMessage}")
                 }
 
                 Activity.RESULT_CANCELED -> {
                     // User canceled without selecting
-                    Toast.makeText(requireContext(), R.string.location_cancelled, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), R.string.location_cancelled, Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(requireContext(), getString(R.string.location_cancelled))
                 }
             }
         }
@@ -150,7 +155,8 @@ class LocationFragment : Fragment() {
                     remove("location_name")
                     selectedLocation = null
                     selectedLocationText.text = getString(R.string.no_location_selected)
-                    Toast.makeText(requireContext(), R.string.location_disabled, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), R.string.location_disabled, Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(requireContext(), getString(R.string.location_disabled))
                 }
             }
         }
@@ -199,7 +205,8 @@ class LocationFragment : Fragment() {
                 getCurrentLocation()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                Toast.makeText(requireContext(), R.string.permission_needed, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), R.string.permission_needed, Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(requireContext(), getString(R.string.permission_needed))
                 locationPermissionRequest.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
             else -> {
@@ -216,11 +223,13 @@ class LocationFragment : Fragment() {
                     selectedLocationText.text = getString(R.string.using_current_location)
                     saveLocation(location.latitude, location.longitude, getString(R.string.using_current_location))
                 } else {
-                    Toast.makeText(requireContext(), R.string.unable_to_get_location, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), R.string.unable_to_get_location, Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(requireContext(), getString(R.string.unable_to_get_location))
                 }
             }
         } catch (_: SecurityException) {
-            Toast.makeText(requireContext(), R.string.permission_denied, Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), R.string.permission_denied, Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(requireContext(), getString(R.string.permission_denied))
         }
     }
 

@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.GroundOverlayOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.graphics.Color
 import android.widget.Toast
+import com.example.purplebunnyteam.NotificationUtils
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
@@ -105,7 +106,8 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                 // Add reference to user's favorites
                 userRef.update("favorites", FieldValue.arrayUnion(cafeRef))
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Bookmarked ${place.name}", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(context, "Bookmarked ${place.name}", Toast.LENGTH_SHORT).show()
+                        NotificationUtils.showToast(requireContext(), "Bookmarked ${place.name}")
                     }
                     .addOnFailureListener { e ->
                         Log.e("BookmarkError", "Error: ${e.message}")
@@ -113,7 +115,8 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
             }
         }
         else {
-            Toast.makeText(context, "Please login first in order to bookmark!", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(context, "Please login first in order to bookmark!", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(requireContext(), "Please login first in order to bookmark!")
             return
         }
     }
@@ -139,12 +142,10 @@ class SearchFragment : Fragment(), OnMapReadyCallback, InfoWindowButtonClickList
                 .commit()
         }
         else {
-            Toast.makeText(context, "Please login first to access reviews!", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(context, "Please login first to access reviews!", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(requireContext(), "Please login first to access reviews!")
             return
         }
-
-
-
     }
 
     //This will update the map configuration at runtime.

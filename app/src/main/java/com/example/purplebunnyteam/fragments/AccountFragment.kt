@@ -22,6 +22,7 @@ import com.google.firebase.ktx.Firebase
 import java.util.*
 import android.app.AlertDialog
 import androidx.core.content.edit
+import com.example.purplebunnyteam.NotificationUtils
 
 class AccountFragment : Fragment() {
 
@@ -39,7 +40,7 @@ class AccountFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val userId get() = auth.currentUser?.uid
 
-    private var selectedProfileImage: Int = R.drawable.avatar // Default fallback
+    private var selectedProfileImage: Int = R.drawable.avatar //This is a Default fallback
 
     private val defaultImages = listOf(
         R.drawable.default_1,
@@ -118,7 +119,8 @@ class AccountFragment : Fragment() {
                     auth.currentUser?.reload()?.addOnSuccessListener {
                         val isVerified = auth.currentUser?.isEmailVerified == true
                         if (!isVerified) {
-                            Toast.makeText(requireContext(), "Your email is not verified. Limited access.", Toast.LENGTH_LONG).show()
+                            //Toast.makeText(requireContext(), "Your email is not verified. Limited access.", Toast.LENGTH_LONG).show()
+                            NotificationUtils.showToast(requireContext(), "Your email is not verified. Limited access.")
                             btnSave.isEnabled = false
                             btnSave.text = "Verify Email to Save"
                             auth.currentUser?.sendEmailVerification()
@@ -141,12 +143,14 @@ class AccountFragment : Fragment() {
         val bio = editBio.text.toString().trim()
 
         if (username.isEmpty() || password.isEmpty() || name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(requireContext(), "Please fill in all fields")
             return
         }
 
         if (!isValidSocials(bio)) {
-            Toast.makeText(requireContext(), "Bio contains invalid social links", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "Bio contains invalid social links", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(requireContext(), "Bio contains invalid social links")
             return
         }
 
@@ -155,7 +159,8 @@ class AccountFragment : Fragment() {
             db.collection("users").whereEqualTo("username", username).get().addOnSuccessListener { snapshot ->
                 val isUsernameTaken = snapshot.documents.any { it.id != uid }
                 if (isUsernameTaken) {
-                    Toast.makeText(requireContext(), "Username already taken", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), "Username already taken", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(requireContext(), "Username already taken")
                 } else {
                     val imageName = resources.getResourceEntryName(selectedProfileImage)
                     val userData = hashMapOf(
@@ -187,10 +192,12 @@ class AccountFragment : Fragment() {
                         //This will send email verification if not verified
                         if (auth.currentUser?.isEmailVerified == false) {
                             auth.currentUser?.sendEmailVerification()?.addOnSuccessListener {
-                                Toast.makeText(requireContext(), "Verification email sent.", Toast.LENGTH_SHORT).show()
+                                //Toast.makeText(requireContext(), "Verification email sent.", Toast.LENGTH_SHORT).show()
+                                NotificationUtils.showToast(requireContext(), "Verification email sent.")
                             }
                         }
-                        Toast.makeText(requireContext(), "Changes saved successfully", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(requireContext(), "Changes saved successfully", Toast.LENGTH_SHORT).show()
+                        NotificationUtils.showToast(requireContext(), "Changes saved successfully")
                     }
                 }
             }

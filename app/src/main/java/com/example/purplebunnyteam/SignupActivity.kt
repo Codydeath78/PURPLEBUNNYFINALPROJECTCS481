@@ -41,12 +41,14 @@ class SignupActivity : AppCompatActivity() {
 
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(email) ||
             TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(this, "Please fill in all fields")
             return
         }
 
         if (password != confirmPassword) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(this, "Passwords do not match")
             return
         }
 
@@ -57,13 +59,15 @@ class SignupActivity : AppCompatActivity() {
         usersRef.whereEqualTo("name", username).get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    Toast.makeText(this, "Username already taken", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "Username already taken", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(this, "Username already taken")
                 } else {
                     createFirebaseAccount(email, password, username)
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error checking username: ${it.message}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Error checking username: ${it.message}", Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(this, "Error checking username: ${it.message}")
             }
     }
 
@@ -75,10 +79,12 @@ class SignupActivity : AppCompatActivity() {
                     if (firebaseUser != null) {
                         saveUserToFirestore(firebaseUser.uid, username, email)
                     } else {
-                        Toast.makeText(this, "User authentication failed", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this, "User authentication failed", Toast.LENGTH_SHORT).show()
+                        NotificationUtils.showToast(this, "User authentication failed")
                     }
                 } else {
-                    Toast.makeText(this, "Signup failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "Signup failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(this, "Signup failed: ${task.exception?.message}")
                 }
             }
     }
@@ -96,12 +102,14 @@ class SignupActivity : AppCompatActivity() {
             .document(userId)
             .set(user)
             .addOnSuccessListener {
-                Toast.makeText(this, "Signup Successful!", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Signup Successful!", Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(this, "Signup Successful!")
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Failed to save user: ${it.message}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Failed to save user: ${it.message}", Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(this, "Failed to save user: ${it.message}")
             }
     }
 }

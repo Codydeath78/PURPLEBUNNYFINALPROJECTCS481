@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.widget.Toast
 import com.example.purplebunnyteam.LoginActivity
 import com.example.purplebunnyteam.MainActivity
+import com.example.purplebunnyteam.NotificationUtils
 import com.example.purplebunnyteam.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.EmailAuthProvider
@@ -33,7 +34,8 @@ class DeleteAccountFragment : Fragment() {
         noButton = view.findViewById(R.id.nobtn)
 
         yesButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Trying to delete account...", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(requireContext(), "Trying to delete account...", Toast.LENGTH_SHORT).show()
+            NotificationUtils.showToast(requireContext(), "Trying to delete account...")
             showConfirmationDialog()
         }
 
@@ -56,17 +58,16 @@ class DeleteAccountFragment : Fragment() {
             .show()
     }
 
-
-    //Toast.makeText(requireContext(), "Attempting to delete user...", Toast.LENGTH_SHORT).show()
-
     private fun deleteAccount() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "No user signed in", Toast.LENGTH_LONG).show()
+            //Toast.makeText(requireContext(), "No user signed in", Toast.LENGTH_LONG).show()
+            NotificationUtils.showToast(requireContext(), "No user signed in")
             return
         }
 
-        Toast.makeText(requireContext(), "Attempting to delete user...", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(requireContext(), "Attempting to delete user...", Toast.LENGTH_SHORT).show()
+        NotificationUtils.showToast(requireContext(), "Attempting to delete user...")
 
         // This will always prompt reauthentication first
         promptReauthentication { isReauthenticated ->
@@ -79,17 +80,21 @@ class DeleteAccountFragment : Fragment() {
                     // Then it will delete FirebaseAuth user
                     currentUser.delete().addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
+                            //Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
+                            NotificationUtils.showToast(requireContext(), "Account deleted")
                             showSuccessDialog()
                         } else {
-                            Toast.makeText(requireContext(), "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                            //Toast.makeText(requireContext(), "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                            NotificationUtils.showToast(requireContext(), "Error: ${task.exception?.message}")
                         }
                     }
                 }.addOnFailureListener { e ->
-                    Toast.makeText(requireContext(), "Firestore deletion failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    //Toast.makeText(requireContext(), "Firestore deletion failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    NotificationUtils.showToast(requireContext(), "Firestore deletion failed: ${e.message}")
                 }
             } else {
-                Toast.makeText(requireContext(), "Reauthentication failed. Account not deleted.", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(requireContext(), "Reauthentication failed. Account not deleted.", Toast.LENGTH_SHORT).show()
+                NotificationUtils.showToast(requireContext(), "Reauthentication failed. Account not deleted.")
             }
         }
     }
@@ -109,7 +114,8 @@ class DeleteAccountFragment : Fragment() {
                 val password = passwordField.text.toString()
 
                 if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(requireContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(requireContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show()
+                    NotificationUtils.showToast(requireContext(), "Fields cannot be empty")
                     callback(false)
                     return@setPositiveButton
                 }
