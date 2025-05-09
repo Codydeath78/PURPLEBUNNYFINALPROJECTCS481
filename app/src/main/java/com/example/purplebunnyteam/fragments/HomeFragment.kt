@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import com.bumptech.glide.Glide
@@ -29,6 +30,8 @@ class HomeFragment : Fragment() {
     ): View {
         //This will inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        val announcementTextView = view.findViewById<TextView>(R.id.announcementsmsg)
 
         val themeButton = view.findViewById<ImageButton>(R.id.themechangebtn)
         profileButton = view.findViewById(R.id.avatarbtn)
@@ -83,6 +86,33 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            db.collection("users").document(userId).collection("bookmarks")
+                .get()
+                .addOnSuccessListener { bookmarkDocs ->
+                    val placeIds = bookmarkDocs.mapNotNull { it.getString("placeId") }
+
+                    if (placeIds.isNotEmpty()) {
+                        db.collection("announcements")
+                            .whereIn("placeId", placeIds)
+                            .get()
+                            .addOnSuccessListener { announcementDocs ->
+                                val announcements = announcementDocs.joinToString("\n\n") { doc ->
+                                    val title = doc.getString("title") ?: "No Title"
+                                    val message = doc.getString("message") ?: "No Message"
+                                    "📢 $title:\n$message"
+                                }
+                                announcementTextView.text = announcements
+
+                            }
+                    }
+                }
+        }
+
 
         return view
     }
