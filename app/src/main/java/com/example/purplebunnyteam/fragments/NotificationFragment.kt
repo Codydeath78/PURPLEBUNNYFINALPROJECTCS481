@@ -34,17 +34,18 @@ class NotificationFragment : Fragment() {
             val start = prefs.getInt("silent_start", -1)
             val end = prefs.getInt("silent_end", -1)
 
-                if (start != -1 && end != -1) {
-                    if (!isSilentPeriodExpired(start, end)) {
-                        textSilentPeriod.text = "Silent Period: ${formatTime(start)} to ${formatTime(end)}"
-                    } else {
-                        textSilentPeriod.text = "Silent Period: Not active"
-                    }
+            if (start != -1 && end != -1) {
+                if (!isSilentPeriodExpired(start, end)) {
+                    textSilentPeriod.text =
+                        "Silent Period: ${formatTime(start)} to ${formatTime(end)}"
                 } else {
-                    textSilentPeriod.text = "Silent Period: Not set"
+                    textSilentPeriod.text = "Silent Period: Not active"
                 }
-                handler.postDelayed(this, 1000)
+            } else {
+                textSilentPeriod.text = "Silent Period: Not set"
             }
+            handler.postDelayed(this, 1000)
+        }
     }
 
     override fun onCreateView(

@@ -2,6 +2,7 @@ package com.example.purplebunnyteam.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -89,30 +90,52 @@ class HomeFragment : Fragment() {
 
         val db = FirebaseFirestore.getInstance()
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-
         if (userId != null) {
-            db.collection("users").document(userId).collection("bookmarks")
-                .get()
-                .addOnSuccessListener { bookmarkDocs ->
-                    val placeIds = bookmarkDocs.mapNotNull { it.getString("placeId") }
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener { userDoc ->
+                    val favoritesRefs = userDoc.get("favorites") as? List<*> ?: emptyList<Any>()
+                    val formattedPlaceIds = favoritesRefs.mapNotNull { ref ->
+                        if (ref is com.google.firebase.firestore.DocumentReference) ref.id else null
+                    }
 
-                    if (placeIds.isNotEmpty()) {
-                        db.collection("announcements")
-                            .whereIn("placeId", placeIds)
-                            .get()
-                            .addOnSuccessListener { announcementDocs ->
-                                val announcements = announcementDocs.joinToString("\n\n") { doc ->
-                                    val title = doc.getString("title") ?: "No Title"
-                                    val message = doc.getString("message") ?: "No Message"
-                                    "📢 $title:\n$message"
+                    val announcementTexts = mutableListOf<String>()
+
+                    if (formattedPlaceIds.isNotEmpty()) {
+                        val chunks = formattedPlaceIds.chunked(10)
+
+                        for (chunk in chunks) {
+                            db.collection("announcements")
+                                .whereIn("placeId", chunk)
+                                .get()
+                                .addOnSuccessListener { announcementDocs ->
+                                    for (doc in announcementDocs) {
+                                        val title = doc.getString("title") ?: "No Title"
+                                        val message = doc.getString("message") ?: "No Message"
+                                        announcementTexts.add("📢 $title:\n$message")
+                                    }
+                                    if (announcementTexts.isNotEmpty()) {
+                                        announcementTextView.text = announcementTexts.joinToString("\n\n")
+                                    } else {
+                                        announcementTextView.text = "No recent announcements."
+                                    }
+                                    Log.d("HomeFragment", "Loaded ${announcementTexts.size} announcements.")
                                 }
-                                announcementTextView.text = announcements
-
-                            }
+                                .addOnFailureListener { e ->
+                                    Log.e("HomeFragment", "Failed to load announcements: ${e.message}")
+                                    announcementTextView.text = "Failed to load announcements."
+                                }
+                        }
+                    } else {
+                        announcementTextView.text = "No favorites found."
                     }
                 }
+                .addOnFailureListener { e ->
+                    Log.e("HomeFragment", "Failed to load user doc: ${e.message}")
+                    announcementTextView.text = "Failed to load bookmarks."
+                }
+        } else {
+            announcementTextView.text = "Please log in to see announcements."
         }
-
 
         return view
     }
