@@ -13,4 +13,27 @@
         android:layout_marginTop="8dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/emptyStateView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No reviews yet"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/btnAddReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Be the first to review"/>
+    </LinearLayout>
+
 </LinearLayout>

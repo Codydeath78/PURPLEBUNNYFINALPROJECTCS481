@@ -9,9 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.purplebunnyteam.Bookmark
-import com.example.purplebunnyteam.BookmarkAdapter
-import com.example.purplebunnyteam.R
+import com.example.purplebunnyteam.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,25 +35,34 @@ class BookmarkFragment : Fragment() {
 
         val userauthId = FirebaseAuth.getInstance().currentUser?.uid
 
-        if (userauthId != null) {
-
-            adapter = BookmarkAdapter().apply {
+        adapter = BookmarkAdapter { bookmark ->
+            val chatFragment = ChatFragment.newInstance(
+                bookmark.id,
+                bookmark.name,
+                bookmark.imageUrl
+            )
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fContainer, chatFragment)
+                .addToBackStack(null)
+                .commit()
+        }.apply {
+            if (userauthId != null) {
                 setEmptyStateView(emptyState)
-            }
-        }
-        else {
-            adapter = BookmarkAdapter().apply {
+                notsignedinState.visibility = View.GONE
+                fetchBookmarks(userauthId) // Call a function to fetch bookmarks
+            } else {
                 setEmptyStateView(notsignedinState)
+                emptyState.visibility = View.GONE
+                submitList(emptyList())
             }
         }
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
+    }
 
-        // Fetch bookmarks from Firestore
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    private fun fetchBookmarks(userId: String) {
         val db = FirebaseFirestore.getInstance()
-
         db.collection("users").document(userId).get()
             .addOnSuccessListener { userDoc ->
                 val favorites = userDoc.get("favorites") as? List<DocumentReference> ?: emptyList()
@@ -77,7 +84,6 @@ class BookmarkFragment : Fragment() {
                         )
                         bookmarks.add(bookmark)
 
-                        // Submit list when all cafes are processed
                         if (bookmarks.size == favorites.size) {
                             adapter.submitList(bookmarks)
                         }

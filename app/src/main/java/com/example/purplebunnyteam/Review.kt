@@ -13,5 +13,7 @@ data class Review(
     @ServerTimestamp val timestamp: Date? = null,
     val photos: List<String> = emptyList(),
     var likes: Int = 0,
-    var isLiked: Boolean = false
+    var isLiked: Boolean = false,
+    val address: String = "",
+    val imageUrl: String = ""
 )
